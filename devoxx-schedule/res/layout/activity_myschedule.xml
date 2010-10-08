@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2010 Peter Kuterna
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <LinearLayout style="@style/TitleBar">
+        <ImageButton style="@style/TitleBarAction"
+            android:contentDescription="@string/description_home"
+            android:src="@drawable/ic_title_home"
+            android:onClick="onHomeClick" />
+
+        <ImageView style="@style/TitleBarSeparator" />
+        <TextView style="@style/TitleBarText" />
+    </LinearLayout>
+    
+    <ScrollView android:id="@+id/register"
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent">
+    	
+	    <LinearLayout 
+	    		android:padding="10dip"
+		    	android:layout_width="fill_parent"
+		   		android:layout_height="wrap_content"
+		   		android:focusable="true" 
+		   		android:focusableInTouchMode="true"
+		    	android:orientation="vertical" >
+	
+		    <TextView
+		    	android:layout_width="fill_parent"
+		   		android:layout_height="wrap_content"
+		   		android:paddingLeft="5dip"
+		   		android:paddingRight="5dip"
+		   		android:paddingBottom="10dip"
+		   		android:textSize="@dimen/text_size_about"
+		   		android:textStyle="bold"
+		    	android:text="@string/myschedule_info" />
+
+		    <TextView
+		    	android:layout_width="fill_parent"
+		   		android:layout_height="wrap_content"
+		   		android:paddingLeft="5dip"
+		   		android:textStyle="bold"
+		    	android:text="@string/myschedule_firstname" />
+		    <EditText
+		        android:id="@id/myschedule_firstname"
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:nextFocusDown="@id/myschedule_lastname"
+		        android:singleLine="true" />
+	    
+		    <TextView
+		    	android:layout_width="fill_parent"
+		   		android:layout_height="wrap_content"
+		   		android:paddingLeft="5dip"
+		   		android:textStyle="bold"
+		    	android:text="@string/myschedule_lastname" />
+		    <EditText
+		        android:id="@id/myschedule_lastname"
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:nextFocusDown="@id/myschedule_email"
+		        android:singleLine="true" />
+	
+		    <TextView
+		    	android:layout_width="fill_parent"
+		   		android:layout_height="wrap_content"
+		   		android:paddingLeft="5dip"
+		   		android:textStyle="bold"
+		    	android:text="@string/myschedule_email" />
+		    <EditText
+		        android:id="@id/myschedule_email"
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:nextFocusDown="@id/register_btn"
+		        android:singleLine="true"
+		        android:inputType="textEmailAddress" />
+	
+		    <RelativeLayout
+		    	android:layout_width="fill_parent"
+		    	android:layout_height="wrap_content"
+		    	android:paddingTop="10dip" >
+		    	
+		    	<Button android:id="@id/cancel_btn"
+		    		android:layout_alignParentLeft="true"
+		    		android:layout_alignParentTop="true"
+		    		android:layout_width="wrap_content"
+		    		android:layout_height="wrap_content"
+		    		android:text="@android:string/cancel" >
+		    	</Button>
+		    	<Button android:id="@id/register_btn"
+		    		android:layout_alignParentRight="true"
+		    		android:layout_alignParentTop="true"
+		    		android:layout_width="wrap_content"
+		    		android:layout_height="wrap_content"
+		    		android:text="@string/btn_myschedule_register" >
+		    	</Button>
+	
+		    </RelativeLayout>
+	
+	    </LinearLayout>
+    </ScrollView>
+
+    <ScrollView android:id="@+id/registered"
+    	android:layout_width="fill_parent"
+    	android:layout_height="fill_parent">
+    	
+
+	    <LinearLayout
+	    		android:padding="10dip"
+		    	android:layout_width="fill_parent"
+		   		android:layout_height="wrap_content"
+		   		android:focusable="true" 
+		   		android:focusableInTouchMode="true"
+		    	android:orientation="vertical" >
+	
+		    <TextView
+		    	android:layout_width="fill_parent"
+		   		android:layout_height="wrap_content"
+		   		android:paddingLeft="5dip"
+		   		android:paddingRight="5dip"
+		   		android:paddingBottom="10dip"
+		   		android:textSize="@dimen/text_size_about"
+		   		android:textStyle="bold"
+		    	android:text="@string/myschedule_enter_code" />
+
+		    <TextView
+		    	android:layout_width="fill_parent"
+		   		android:layout_height="wrap_content"
+		   		android:paddingLeft="5dip"
+		   		android:textStyle="bold"
+		    	android:text="@string/myschedule_activationcode" />
+		    <EditText
+		        android:id="@+id/myschedule_activationcode"
+		        android:layout_width="fill_parent"
+		        android:layout_height="wrap_content"
+		        android:singleLine="true"
+		        android:nextFocusDown="@id/ok_btn"
+		        android:numeric="integer" />
+		        
+		    <RelativeLayout
+		    	android:layout_width="fill_parent"
+		    	android:layout_height="wrap_content"
+		    	android:paddingTop="10dip" >
+		    	
+		    	<Button android:id="@id/clear_btn"
+		    		android:layout_alignParentLeft="true"
+		    		android:layout_alignParentTop="true"
+		    		android:layout_width="wrap_content"
+		    		android:layout_height="wrap_content"
+		    		android:text="@string/btn_myschedule_clear" >
+		    	</Button>
+		    	<Button android:id="@id/ok_btn"
+		    		android:layout_alignParentRight="true"
+		    		android:layout_alignParentTop="true"
+		    		android:layout_width="wrap_content"
+		    		android:layout_height="wrap_content"
+		    		android:text="@android:string/ok" >
+		    	</Button>
+	
+		    </RelativeLayout>
+	
+	    </LinearLayout>
+	    
+	</ScrollView>
+
+</LinearLayout>

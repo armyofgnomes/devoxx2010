@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2010 Google Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!--
+	Adapted by Peter Kuterna to support the Devoxx conference.
+-->
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:devoxx="http://schemas.android.com/apk/res/net.peterkuterna.android.apps.devoxxsched"
+    android:id="@+id/blocks_scroll"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <view
+        class="net.peterkuterna.android.apps.devoxxsched.ui.widget.BlocksLayout"
+        android:id="@+id/blocks"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        devoxx:columns="2">
+        <view
+            class="net.peterkuterna.android.apps.devoxxsched.ui.widget.TimeRulerView"
+            android:id="@id/blocks_ruler"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            devoxx:headerWidth="46dip"
+            devoxx:hourHeight="65dip"
+            devoxx:horizontalDivider="true"
+            devoxx:labelTextSize="13sp"
+            devoxx:labelPaddingLeft="5dip"
+            devoxx:labelColor="#000000"
+            devoxx:dividerColor="#d9d9d9"
+            devoxx:startHour="7"
+            devoxx:endHour="23" />
+        <View
+            android:id="@id/blocks_now"
+            android:background="@drawable/now_bar"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+    </view>
+</ScrollView>

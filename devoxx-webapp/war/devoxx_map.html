@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>Devoxx 2010 Map</title>
+		<meta name="viewport" content="initial-scale=1.0; maximum-scale=1.0; user-scalable=no">
+
+		<style type="text/css">
+			* {
+				-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+			}
+			
+			html,body {
+				width: 100%;
+				height: 100%;
+				margin: 0;
+				padding: 0;
+				font-size: small;
+				font-family: Helvetica, Arial;
+			}
+
+			#map-canvas {
+				width: 100%;
+				height: 100%;
+				position: absolute;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="map-container">
+			<div id="map-canvas"></div>
+		</div>
+		
+		<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+		<script type="text/javascript" src="scripts/devoxx.js"></script>
+	</body>
+</html>

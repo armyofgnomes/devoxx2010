@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2010 Google Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!--
+	Adapted by Peter Kuterna to support the Devoxx conference.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+	android:installLocation="preferExternal"
+	android:versionCode="3" package="net.peterkuterna.android.apps.devoxxsched"
+	android:versionName="1.02">
+
+	<permission android:name="net.peterkuterna.android.apps.devoxxsched.permission.WRITE_SCHEDULE"
+		android:protectionLevel="normal" 
+		android:label="@string/permission_write"
+		android:description="@string/permission_write" />
+
+	<application android:label="@string/app_name" 
+		android:icon="@drawable/ic_launcher" 
+		android:debuggable="false">
+
+		<activity android:name=".ui.HomeActivity" 
+			android:label="@string/app_name"
+			android:theme="@style/Theme.DevoxxSched">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+		</activity>
+
+		<activity android:name=".ui.ScheduleActivity" 
+			android:theme="@style/Theme.DevoxxSched"
+			android:label="@string/title_schedule" />
+
+		<activity android:name=".ui.BlocksActivity" 
+			android:theme="@style/Theme.DevoxxSched">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.TAB" />
+				<data android:mimeType="vnd.android.cursor.dir/vnd.devoxx.block" />
+			</intent-filter>
+		</activity>
+
+		<activity android:name=".ui.TracksActivity" 
+			android:theme="@style/Theme.DevoxxSched"
+			android:label="@string/title_tracks">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:mimeType="vnd.android.cursor.dir/vnd.devoxx.track" />
+			</intent-filter>
+		</activity>
+
+		<activity android:name=".ui.SessionsActivity" 
+			android:theme="@style/Theme.DevoxxSched"
+			android:label="@string/title_sessions">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.TAB" />
+				<data android:mimeType="vnd.android.cursor.dir/vnd.devoxx.session" />
+			</intent-filter>
+		</activity>
+
+		<activity android:name=".ui.SessionDetailActivity"
+			android:theme="@style/Theme.DevoxxSched">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:mimeType="vnd.android.cursor.item/vnd.devoxx.session" />
+			</intent-filter>
+		</activity>
+
+		<activity android:name=".ui.NotesActivity" 
+			android:theme="@style/Theme.DevoxxSched"
+			android:label="@string/title_notes">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.TAB" />
+				<data android:mimeType="vnd.android.cursor.dir/vnd.devoxx.note" />
+			</intent-filter>
+		</activity>
+
+		<activity android:name=".ui.NoteEditActivity" 
+			android:theme="@style/Theme.DevoxxSched"
+			android:label="@string/title_note_edit" 
+			android:windowSoftInputMode="adjustResize">
+			<intent-filter>
+				<action android:name="android.intent.action.INSERT" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:mimeType="vnd.android.cursor.dir/vnd.devoxx.note" />
+			</intent-filter>
+			<intent-filter>
+				<action android:name="android.intent.action.EDIT" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:mimeType="vnd.android.cursor.item/vnd.devoxx.note" />
+			</intent-filter>
+		</activity>
+
+		<activity android:name=".ui.SpeakersActivity" 
+			android:theme="@style/Theme.DevoxxSched"
+			android:label="@string/title_speakers">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.TAB" />
+				<data android:mimeType="vnd.android.cursor.dir/vnd.devoxx.speaker" />
+			</intent-filter>
+		</activity>
+
+		<activity android:name=".ui.SpeakerDetailActivity"
+			android:theme="@style/Theme.DevoxxSched" 
+			android:label="@string/title_speaker_detail">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<data android:mimeType="vnd.android.cursor.item/vnd.devoxx.speaker" />
+			</intent-filter>
+		</activity>
+
+		<activity android:name=".ui.StarredActivity" android:theme="@style/Theme.DevoxxSched"
+			android:label="@string/title_starred" />
+
+		<activity android:name=".ui.MapActivity" 
+			android:theme="@style/Theme.DevoxxSched"
+			android:label="@string/title_map">
+			<intent-filter>
+				<action android:name="android.intent.action.VIEW" />
+				<category android:name="android.intent.category.DEFAULT" />
+				<category android:name="android.intent.category.TAB" />
+			</intent-filter>
+		</activity>
+
+		<activity android:name=".ui.SearchActivity" 
+			android:theme="@style/Theme.DevoxxSched"
+			android:label="@string/title_search" 
+			android:launchMode="singleTop">
+			<intent-filter>
+				<action android:name="android.intent.action.SEARCH" />
+				<category android:name="android.intent.category.DEFAULT" />
+			</intent-filter>
+			<meta-data android:name="android.app.searchable"
+				android:resource="@xml/searchable" />
+		</activity>
+
+		<activity android:name=".ui.MyScheduleActivity" 
+			android:theme="@style/Theme.DevoxxSched"
+			android:label="@string/title_myschedule" />
+
+		<activity android:name=".ui.SettingsActivity" 
+			android:theme="@style/Theme.DevoxxSchedSettings"
+			android:label="@string/title_settings" />
+
+		<activity android:name=".ui.AboutActivity" 
+			android:theme="@style/Theme.DevoxxSched"
+			android:label="@string/title_about" />
+
+		<meta-data android:name="android.app.default_searchable"
+			android:value=".ui.SearchActivity" />
+
+		<service android:name=".service.SyncService" />
+
+		<provider android:name=".provider.ScheduleProvider"
+			android:authorities="net.peterkuterna.android.apps.devoxxsched" 
+			android:writePermission="net.peterkuterna.android.apps.devoxxsched.permission.WRITE_SCHEDULE" />
+
+	</application>
+
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	<uses-permission android:name="android.permission.INTERNET" />
+
+	<uses-sdk android:minSdkVersion="5" android:targetSdkVersion="8"/>
+	
+	<supports-screens android:largeScreens="true" android:normalScreens="true" android:smallScreens="false" />>
+
+</manifest> 

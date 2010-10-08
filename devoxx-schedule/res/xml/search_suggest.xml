@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright 2010 Google Inc.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+
+<!--
+	Adapted by Peter Kuterna to support the Devoxx conference.
+-->
+<search_suggest>
+<word>architecture</word>
+<word>adobe</word>
+<word>ajax</word>
+<word>android</word>
+<word>annotations</word>
+<word>apache</word>
+<word>api</word>
+<word>applications</word>
+<word>apps</word>
+<word>bpm</word>
+<word>cloud</word>
+<word>cluster</word>
+<word>compiler</word>
+<word>continuous integration</word>
+<word>data</word>
+<word>design</word>
+<word>development</word>
+<word>desktop</word>
+<word>distributed</word>
+<word>ejb</word>
+<word>enterprise</word>
+<word>flash</word>
+<word>framework</word>
+<word>google</word>
+<word>grails</word>
+<word>groovy</word>
+<word>git</word>
+<word>gui</word>
+<word>guice</word>
+<word>gwt</word>
+<word>hibernate</word>
+<word>html</word>
+<word>html5</word>
+<word>java</word>
+<word>java ee</word>
+<word>java se</word>
+<word>javafx</word>
+<word>javascript</word>
+<word>jdk</word>
+<word>jpa</word>
+<word>jquery</word>
+<word>jsf</word>
+<word>jvm</word>
+<word>keynote</word>
+<word>library</word>
+<word>load</word>
+<word>methodology</word>
+<word>mobile</word>
+<word>native</word>
+<word>nosql</word>
+<word>open source</word>
+<word>orm</word>
+<word>pdf</word>
+<word>pragmatic</word>
+<word>reflection</word>
+<word>rest</word>
+<word>restful</word>
+<word>ria</word>
+<word>rss</word>
+<word>scala</word>
+<word>scalable</word>
+<word>services</word>
+<word>svn</word>
+<word>swing</word>
+<word>spring</word>
+<word>tdd</word>
+<word>testing</word>
+<word>toolkit</word>
+<word>uml</word>
+<word>web</word>
+<word>websocket</word>
+<word>wicket</word>
+<word>xml</word>
+</search_suggest>
