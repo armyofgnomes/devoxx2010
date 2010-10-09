@@ -18,22 +18,32 @@ package net.peterkuterna.android.apps.devoxxsched.ui;
 
 import net.peterkuterna.android.apps.devoxxsched.R;
 import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Notes;
+import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Sessions;
 import net.peterkuterna.android.apps.devoxxsched.util.NotifyingAsyncQueryHandler;
 import net.peterkuterna.android.apps.devoxxsched.util.UIUtils;
 import net.peterkuterna.android.apps.devoxxsched.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.text.format.DateUtils;
+import android.view.ContextMenu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 
 /**
  * {@link ListActivity} that displays a set of {@link Notes}, as requested
@@ -42,6 +52,8 @@ import android.widget.TextView;
 public class NotesActivity extends ListActivity implements AsyncQueryListener {
 
     public static final String EXTRA_SHOW_INSERT = "net.peterkuterna.android.apps.devoxxsched.extra.SHOW_INSERT";
+    
+    private static final String DIALOG_NOTE_ID_ARG = "id";
 
     private NotesAdapter mAdapter;
 
@@ -71,11 +83,92 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
         mAdapter = new NotesAdapter(this);
         setListAdapter(mAdapter);
 
+        registerForContextMenu(getListView());
+        
         final Uri notesUri = getIntent().getData();
         
         // Start background query to load notes
         mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
         mHandler.startQuery(notesUri, NotesQuery.PROJECTION, Notes.DEFAULT_SORT);
+    }
+
+    @Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+    	super.onCreateContextMenu(menu, v, menuInfo);
+    	final AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+    	final int position = info.position;
+    	if (!mShowInsert || mShowInsert && position > 0) {
+    		final MenuInflater inflater = getMenuInflater();
+    		inflater.inflate(R.menu.context_menu_notes, menu);
+    	}
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		switch (item.getItemId()) {
+			case R.id.note_goto_session:
+				if (mAdapter.getCursor().moveToPosition(mShowInsert ? info.position + 1 : info.position)) {
+					final String sessionId = mAdapter.getCursor().getString(NotesQuery.SESSION_ID);
+					final Uri sessionUri = Sessions.buildSessionUri(sessionId);
+			        final Intent intent = new Intent(Intent.ACTION_VIEW, sessionUri);
+			        startActivity(intent);
+				}
+		        return true;
+			case R.id.note_delete:
+				Bundle bundle = new Bundle();
+				bundle.putLong(DIALOG_NOTE_ID_ARG, info.id);
+				showDialog(R.id.dialog_discard_confirm, bundle);
+				return true;
+			default:
+				return super.onContextItemSelected(item);
+	  	}
+	}
+
+    @Override
+	protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
+        switch (id) {
+        	case R.id.dialog_discard_confirm:
+        		long notesId = args.getLong(DIALOG_NOTE_ID_ARG);
+        		((AlertDialog) dialog).setButton(
+        				AlertDialog.BUTTON_POSITIVE, 
+        				getString(android.R.string.ok), 
+        				new DiscardConfirmClickListener(notesId));
+        		break;
+        	default:
+        		super.onPrepareDialog(id, dialog, args);
+        }
+	}
+
+	@Override
+    protected Dialog onCreateDialog(int id, Bundle bundle) {
+        switch (id) {
+            case R.id.dialog_discard_confirm: {
+                return new AlertDialog.Builder(this)
+                        .setTitle(R.string.note_discard_title)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setMessage(R.string.note_discard_confirm)
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .setCancelable(false)
+                        .create();
+            }
+        }
+        return super.onCreateDialog(id, bundle);
+    }
+
+    private class DiscardConfirmClickListener implements DialogInterface.OnClickListener {
+    	private final long notesId;
+    	
+		public DiscardConfirmClickListener(long notesId) {
+			this.notesId = notesId;
+		}
+
+		public void onClick(DialogInterface dialog, int which) {
+			final Uri uri = Notes.buildNoteUri(notesId);
+			mHandler.startDelete(uri);
+			mAdapter.getCursor().requery();
+        }
     }
 
     /** {@inheritDoc} */
@@ -91,7 +184,6 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
             // Edit an existing note
             final Uri noteUri = Notes.buildNoteUri(id);
             startActivity(new Intent(Intent.ACTION_EDIT, noteUri));
-
         } else {
             // Insert new note
             final Uri notesDirUri = getIntent().getData();
@@ -161,10 +253,12 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
                 BaseColumns._ID,
                 Notes.NOTE_TIME,
                 Notes.NOTE_CONTENT,
+                Sessions.SESSION_ID,
         };
 
         int _ID = 0;
         int NOTE_TIME = 1;
         int NOTE_CONTENT = 2;
+        int SESSION_ID = 3;
     }
 }

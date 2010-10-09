@@ -143,6 +143,9 @@
 
     <string name="note_discard_title">Discard note?</string>
     <string name="note_discard_confirm">Are you sure you want to discard this note, deleting any contents?</string>
+    
+    <string name="note_goto_session">Show session</string>
+    <string name="note_delete">Delete note</string>
 
     <string name="note_before"><xliff:g id="time">%1$s</xliff:g> before session</string>
     <string name="note_into"><xliff:g id="time">%1$s</xliff:g> into session</string>

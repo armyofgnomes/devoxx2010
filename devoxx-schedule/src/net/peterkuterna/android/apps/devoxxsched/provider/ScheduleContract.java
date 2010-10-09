@@ -320,7 +320,7 @@ public class ScheduleContract {
 
         /** Default "ORDER BY" clause. */
         public static final String DEFAULT_SORT = Tables.SESSIONS + "." + SessionsColumns.SESSION_ID + " ASC";
-
+        
         /** Build {@link Uri} for requested {@link #SESSION_ID}. */
         public static Uri buildSessionUri(String sessionId) {
             return CONTENT_URI.buildUpon().appendPath(sessionId).build();
@@ -473,7 +473,7 @@ public class ScheduleContract {
         public static Uri buildNoteUri(long noteId) {
             return ContentUris.withAppendedId(CONTENT_URI, noteId);
         }
-
+        
         public static long getNoteId(Uri uri) {
             return ContentUris.parseId(uri);
         }
