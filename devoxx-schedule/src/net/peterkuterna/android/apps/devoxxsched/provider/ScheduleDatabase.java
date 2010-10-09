@@ -56,8 +56,9 @@ public class ScheduleDatabase extends SQLiteOpenHelper {
     private static final int VER_LAUNCH = 1;
     private static final int VER_ADD_NOTE_ON_SESSION = 2;
     private static final int VER_ALTER_NOTE_ON_SESSION = 3;
+    private static final int VER_RECREATE_FULLTEXT_TABLE = 4;
 
-    private static final int DATABASE_VERSION = VER_ALTER_NOTE_ON_SESSION;
+    private static final int DATABASE_VERSION = VER_RECREATE_FULLTEXT_TABLE;
 
     interface Tables {
         String SESSIONS = "sessions";
@@ -245,15 +246,15 @@ public class ScheduleDatabase extends SQLiteOpenHelper {
                 + SyncColumns.MD5 + " TEXT NOT NULL,"
                 + "UNIQUE (" + SyncColumns.URI_ID + ") ON CONFLICT REPLACE)");
 
-        createSessionsSearch(db);
-        createSpeakersSearch(db);
+        createSessionsSearch(db, true);
+        createSpeakersSearch(db, true);
 
         db.execSQL("CREATE TABLE " + Tables.SEARCH_SUGGEST + " ("
                 + BaseColumns._ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + SearchManager.SUGGEST_COLUMN_TEXT_1 + " TEXT NOT NULL)");
     }
 
-    private static void createSessionsSearch(SQLiteDatabase db) {
+    private static void createSessionsSearch(SQLiteDatabase db, boolean createTriggers) {
         // Using the "porter" tokenizer for simple stemming, so that
         // "frustration" matches "frustrated."
 
@@ -265,7 +266,7 @@ public class ScheduleDatabase extends SQLiteOpenHelper {
                 + "UNIQUE (" + SessionsSearchColumns.SESSION_ID + ") ON CONFLICT REPLACE,"
                 + "tokenize=porter)");
 
-        createSessionsSearchTriggers(db);
+        if (createTriggers) createSessionsSearchTriggers(db);
     }
     
     /**
@@ -291,7 +292,7 @@ public class ScheduleDatabase extends SQLiteOpenHelper {
                 + ";" + " END;");
     }
 
-    private static void createSpeakersSearch(SQLiteDatabase db) {
+    private static void createSpeakersSearch(SQLiteDatabase db, boolean createTriggers) {
         // Using the "porter" tokenizer for simple stemming, so that
         // "frustration" matches "frustrated."
 
@@ -303,7 +304,7 @@ public class ScheduleDatabase extends SQLiteOpenHelper {
                 + "UNIQUE (" + SpeakersSearchColumns.SPEAKER_ID + ") ON CONFLICT REPLACE,"
                 + "tokenize=porter)");
 
-        createSpeakersSearchTriggers(db);
+        if (createTriggers) createSpeakersSearchTriggers(db);
     }
 
     /**
@@ -438,6 +439,25 @@ public class ScheduleDatabase extends SQLiteOpenHelper {
                 db.execSQL("DROP TABLE tmp_" + Tables.SESSIONS);
 
                 version = VER_ALTER_NOTE_ON_SESSION;
+            case VER_ALTER_NOTE_ON_SESSION:
+                db.execSQL("DROP TABLE IF EXISTS " + Tables.SESSIONS_SEARCH);
+                
+                createSessionsSearch(db, false);
+                
+                db.execSQL("INSERT INTO " + Qualified.SESSIONS_SEARCH
+                		+ " SELECT "
+                		+ SessionsColumns.SESSION_ID
+                		+ ", "
+                		+ SessionsColumns.TITLE 
+                		+ "||'; '||" 
+                		+ SessionsColumns.SUMMARY
+                        + "||'; '||" 
+                        + SessionsColumns.EXPERIENCE 
+                        + "||'; '||" 
+                        + Sessions.NOTE
+                        + " FROM " + Tables.SESSIONS);
+
+                version = VER_RECREATE_FULLTEXT_TABLE;
         }
 
         Log.d(TAG, "after upgrade logic, at version " + version);
