@@ -81,13 +81,13 @@ public class NoteEditActivity extends Activity implements AsyncQueryListener {
         saveContent();
     }
 
-    public void onDiscardClick(View v) {
+    public void onCancelClick(View v) {
         final String noteContent = mText.getText().toString();
         if (TextUtils.isEmpty(noteContent)) {
-            // When empty content, shortcut to discard without confirm step
-            discardContent();
+            // When empty content, shortcut to cancel without confirm step
+            cancelContent();
         } else {
-            showDialog(R.id.dialog_discard_confirm);
+            showDialog(R.id.dialog_cancel_confirm);
         }
     }
 
@@ -108,13 +108,13 @@ public class NoteEditActivity extends Activity implements AsyncQueryListener {
     @Override
     protected Dialog onCreateDialog(int id) {
         switch (id) {
-            case R.id.dialog_discard_confirm: {
+            case R.id.dialog_cancel_confirm: {
                 return new AlertDialog.Builder(this)
-                        .setTitle(R.string.note_discard_title)
+                        .setTitle(R.string.note_cancel_title)
                         .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setMessage(R.string.note_discard_confirm)
+                        .setMessage(R.string.note_cancel_confirm)
                         .setNegativeButton(android.R.string.cancel, null)
-                        .setPositiveButton(android.R.string.ok, new DiscardConfirmClickListener())
+                        .setPositiveButton(android.R.string.ok, new CancelConfirmClickListener())
                         .setCancelable(false)
                         .create();
             }
@@ -122,9 +122,9 @@ public class NoteEditActivity extends Activity implements AsyncQueryListener {
         return null;
     }
 
-    private class DiscardConfirmClickListener implements DialogInterface.OnClickListener {
+    private class CancelConfirmClickListener implements DialogInterface.OnClickListener {
         public void onClick(DialogInterface dialog, int which) {
-            discardContent();
+            cancelContent();
         }
     }
 
@@ -140,7 +140,7 @@ public class NoteEditActivity extends Activity implements AsyncQueryListener {
 
         // When empty content, treat as discard
         if (TextUtils.isEmpty(noteContent)) {
-            discardContent();
+            cancelContent();
             return;
         }
 
@@ -163,17 +163,7 @@ public class NoteEditActivity extends Activity implements AsyncQueryListener {
         finish();
     }
 
-    private void discardContent() {
-        final String action = getIntent().getAction();
-        if (Intent.ACTION_EDIT.equals(action)) {
-            final Uri noteUri = getIntent().getData();
-            mHandler.startDelete(noteUri);
-
-        } else if (Intent.ACTION_INSERT.equals(action)) {
-            // Silently discard new note
-
-        }
-
+    private void cancelContent() {
         finish();
     }
 

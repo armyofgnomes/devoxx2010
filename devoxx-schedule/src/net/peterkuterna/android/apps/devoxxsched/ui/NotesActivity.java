@@ -58,6 +58,7 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
     private NotesAdapter mAdapter;
 
     private boolean mShowInsert = false;
+    private boolean categoryTab = false;
 
     private NotifyingAsyncQueryHandler mHandler;
 
@@ -65,11 +66,14 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        final Uri notesUri = getIntent().getData();
+        
         if (!getIntent().hasCategory(Intent.CATEGORY_TAB)) {
             setContentView(R.layout.activity_notes);
             ((TextView) findViewById(R.id.title_text)).setText(getTitle());
         } else {
             setContentView(R.layout.activity_notes_content);
+            categoryTab = true;
         }
 
         mShowInsert = getIntent().getBooleanExtra(EXTRA_SHOW_INSERT, false);
@@ -85,8 +89,6 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 
         registerForContextMenu(getListView());
         
-        final Uri notesUri = getIntent().getData();
-        
         // Start background query to load notes
         mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
         mHandler.startQuery(notesUri, NotesQuery.PROJECTION, Notes.DEFAULT_SORT);
@@ -100,6 +102,9 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
     	if (!mShowInsert || mShowInsert && position > 0) {
     		final MenuInflater inflater = getMenuInflater();
     		inflater.inflate(R.menu.context_menu_notes, menu);
+    		if (categoryTab) {
+    			menu.removeItem(R.id.note_goto_session);
+    		}
     	}
 	}
 
@@ -118,7 +123,7 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 			case R.id.note_delete:
 				Bundle bundle = new Bundle();
 				bundle.putLong(DIALOG_NOTE_ID_ARG, info.id);
-				showDialog(R.id.dialog_discard_confirm, bundle);
+				showDialog(R.id.dialog_delete_confirm, bundle);
 				return true;
 			default:
 				return super.onContextItemSelected(item);
@@ -128,12 +133,12 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
     @Override
 	protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
         switch (id) {
-        	case R.id.dialog_discard_confirm:
+        	case R.id.dialog_delete_confirm:
         		long notesId = args.getLong(DIALOG_NOTE_ID_ARG);
         		((AlertDialog) dialog).setButton(
         				AlertDialog.BUTTON_POSITIVE, 
         				getString(android.R.string.ok), 
-        				new DiscardConfirmClickListener(notesId));
+        				new DeleteConfirmClickListener(notesId));
         		break;
         	default:
         		super.onPrepareDialog(id, dialog, args);
@@ -143,11 +148,11 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 	@Override
     protected Dialog onCreateDialog(int id, Bundle bundle) {
         switch (id) {
-            case R.id.dialog_discard_confirm: {
+            case R.id.dialog_delete_confirm: {
                 return new AlertDialog.Builder(this)
-                        .setTitle(R.string.note_discard_title)
+                        .setTitle(R.string.note_delete_title)
                         .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setMessage(R.string.note_discard_confirm)
+                        .setMessage(R.string.note_delete_confirm)
                         .setNegativeButton(android.R.string.cancel, null)
                         .setPositiveButton(android.R.string.ok, null)
                         .setCancelable(false)
@@ -157,10 +162,10 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
         return super.onCreateDialog(id, bundle);
     }
 
-    private class DiscardConfirmClickListener implements DialogInterface.OnClickListener {
+    private class DeleteConfirmClickListener implements DialogInterface.OnClickListener {
     	private final long notesId;
     	
-		public DiscardConfirmClickListener(long notesId) {
+		public DeleteConfirmClickListener(long notesId) {
 			this.notesId = notesId;
 		}
 

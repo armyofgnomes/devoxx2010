@@ -24,7 +24,8 @@
     <item type="id" name="title_logo" />
     <item type="id" name="title_text" />
     
-    <item type="id" name="dialog_discard_confirm" />
+    <item type="id" name="dialog_delete_confirm" />
+    <item type="id" name="dialog_cancel_confirm" />
 
     <item type="id" name="blocks_ruler" />
     <item type="id" name="blocks_now" />

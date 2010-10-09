@@ -136,13 +136,15 @@
     <string name="share_notes">Exported notes from Devoxx 2010</string>
 
     <string name="note_save">Save</string>
-    <string name="note_discard">Discard</string>
+    <string name="note_cancel">Cancel</string>
 
     <string name="note_create">Create new note</string>
     <string name="note_hint">Enter note</string>
 
-    <string name="note_discard_title">Discard note?</string>
-    <string name="note_discard_confirm">Are you sure you want to discard this note, deleting any contents?</string>
+    <string name="note_delete_title">Delete note?</string>
+    <string name="note_cancel_title">Cancel note?</string>
+    <string name="note_delete_confirm">Are you sure you want to delete this note?</string>
+    <string name="note_cancel_confirm">Are you sure you want to cancel this note, not saving any modifications?</string>
     
     <string name="note_goto_session">Show session</string>
     <string name="note_delete">Delete note</string>
