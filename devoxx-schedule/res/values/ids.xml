@@ -24,6 +24,8 @@
     <item type="id" name="title_logo" />
     <item type="id" name="title_text" />
     
+    <item type="id" name="dialog_myschedule_email" />
+    <item type="id" name="dialog_myschedule_publish" />
     <item type="id" name="dialog_delete_confirm" />
     <item type="id" name="dialog_cancel_confirm" />
 

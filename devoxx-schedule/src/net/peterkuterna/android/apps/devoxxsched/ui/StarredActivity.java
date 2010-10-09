@@ -43,6 +43,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicNameValuePair;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.TabActivity;
 import android.content.ContentResolver;
@@ -114,54 +115,65 @@ public class StarredActivity extends TabActivity implements AsyncQueryListener {
         mHandler.startQuery(Sessions.CONTENT_STARRED_URI, SessionsQuery.PROJECTION);
     }
 
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        switch (id) {
+            case R.id.dialog_myschedule_email: {
+                return new AlertDialog.Builder(this)
+                        .setTitle(R.string.myschedule_email_title)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setMessage(R.string.myschedule_email_confirm)
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .setPositiveButton(android.R.string.ok, new EmailConfirmClickListener())
+                        .setCancelable(false)
+                        .create();
+            }
+            case R.id.dialog_myschedule_publish: {
+                return new AlertDialog.Builder(this)
+                        .setTitle(R.string.myschedule_publish_title)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setMessage(R.string.myschedule_publish_confirm)
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .setPositiveButton(android.R.string.ok, new PublishConfirmClickListener())
+                        .setCancelable(false)
+                        .create();
+            }
+        }
+        return null;
+    }
+
+    private class EmailConfirmClickListener implements DialogInterface.OnClickListener {
+        public void onClick(DialogInterface dialog, int which) {
+	    	if (checkMySchedulePrefs()) {
+	    		emailMySchedule();
+	    	} else {
+	            final Intent intent = new Intent(StarredActivity.this, MyScheduleActivity.class);
+	            startActivityForResult(intent, EMAIL_SHOW_MYSCHEDULE_REGISTRATION);
+	    	}
+        }
+    }
+
+    private class PublishConfirmClickListener implements DialogInterface.OnClickListener {
+        public void onClick(DialogInterface dialog, int which) {
+	    	if (checkMySchedulePrefs()) {
+	    		publishMySchedule();
+	    	} else {
+	            final Intent intent = new Intent(StarredActivity.this, MyScheduleActivity.class);
+	            startActivityForResult(intent, PUBLISH_SHOW_MYSCHEDULE_REGISTRATION);
+	    	}
+        }
+    }
+
     public void onHomeClick(View v) {
         UIUtils.goHome(this);
     }
     
     public void onEmailClick(View v) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(R.string.myschedule_alert_dialog_title)
-			.setMessage(R.string.myschedule_alert_dialog_email_msg)
-			.setCancelable(false)
-			.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					dialog.dismiss();
-					if (checkMySchedulePrefs()) {
-						emailMySchedule();
-					} else {
-						final Intent intent = new Intent(StarredActivity.this, MyScheduleActivity.class);
-						startActivityForResult(intent, EMAIL_SHOW_MYSCHEDULE_REGISTRATION);
-					}
-				}
-			})
-			.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					dialog.cancel();
-				}
-			}).create().show();
+    	showDialog(R.id.dialog_myschedule_email);
     }
     
     public void onPublishClick(View v) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(R.string.myschedule_alert_dialog_title)
-			.setMessage(R.string.myschedule_alert_dialog_publish_msg)
-			.setCancelable(false)
-			.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					dialog.dismiss();
-			    	if (checkMySchedulePrefs()) {
-			    		publishMySchedule();
-			    	} else {
-			            final Intent intent = new Intent(StarredActivity.this, MyScheduleActivity.class);
-			            startActivityForResult(intent, PUBLISH_SHOW_MYSCHEDULE_REGISTRATION);
-			    	}
-				}
-			})
-			.setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					dialog.cancel();
-				}
-			}).create().show();
+    	showDialog(R.id.dialog_myschedule_publish);
     }
 
     public void onSearchClick(View v) {

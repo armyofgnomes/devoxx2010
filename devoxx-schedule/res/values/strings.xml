@@ -122,10 +122,12 @@
     <string name="myschedule_publish_message">Publishing favorites...</string>
     <string name="myschedule_publish_ok">Favorites published. Check your MySchedule page on the Devoxx Schedules wiki.</string>
     <string name="myschedule_publish_nok">Could not publish favorites.</string>
-    <string name="myschedule_alert_dialog_title"></string>
-    <string name="myschedule_alert_dialog_email_msg">Do you want to email your Devoxx MySchedule?</string>
-    <string name="myschedule_alert_dialog_publish_msg">Do you want to publish your Devoxx MySchedule?</string>
 
+    <string name="myschedule_email_title">Email MySchedule?</string>
+    <string name="myschedule_publish_title">Publish MySchedule?</string>
+    <string name="myschedule_email_confirm">Do you want to email your Devoxx MySchedule?</string>
+    <string name="myschedule_publish_confirm">Do you want to publish your Devoxx MySchedule?</string>
+    
     <string name="search_sessions">Sessions</string>
     <string name="search_speakers">Speakers</string>
 
