@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
+/*
+ * Adapted by Peter Kuterna for the Devoxx conference.
+ */
 package net.peterkuterna.android.apps.devoxxsched.ui;
 
 import net.peterkuterna.android.apps.devoxxsched.R;
 import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Notes;
 import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Sessions;
+import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Tracks;
 import net.peterkuterna.android.apps.devoxxsched.util.NotifyingAsyncQueryHandler;
 import net.peterkuterna.android.apps.devoxxsched.util.UIUtils;
 import net.peterkuterna.android.apps.devoxxsched.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
@@ -29,21 +33,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.text.format.DateUtils;
-import android.view.ContextMenu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.widget.AdapterView;
-import android.widget.CursorAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 
 /**
  * {@link ListActivity} that displays a set of {@link Notes}, as requested
@@ -51,10 +51,13 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
  */
 public class NotesActivity extends ListActivity implements AsyncQueryListener {
 
+	private static final String TAG = "NotesActivity";
+	
     public static final String EXTRA_SHOW_INSERT = "net.peterkuterna.android.apps.devoxxsched.extra.SHOW_INSERT";
     
     private static final String DIALOG_NOTE_ID_ARG = "id";
 
+    private Uri notesUri;
     private NotesAdapter mAdapter;
 
     private boolean mShowInsert = false;
@@ -62,11 +65,20 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 
     private NotifyingAsyncQueryHandler mHandler;
 
+	public static final class NotesListItemViews {
+		TextView sessionTitle;
+		ImageView groupIndicator;
+		View gotoSessionView;
+		TextView noteContent;
+		TextView noteTime;
+		View deleteNoteView;
+	}
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final Uri notesUri = getIntent().getData();
+        notesUri = getIntent().getData();
         
         if (!getIntent().hasCategory(Intent.CATEGORY_TAB)) {
             setContentView(R.layout.activity_notes);
@@ -87,48 +99,22 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
         mAdapter = new NotesAdapter(this);
         setListAdapter(mAdapter);
 
-        registerForContextMenu(getListView());
-        
         // Start background query to load notes
         mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
-        mHandler.startQuery(notesUri, NotesQuery.PROJECTION, Notes.DEFAULT_SORT);
     }
 
     @Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-    	super.onCreateContextMenu(menu, v, menuInfo);
-    	final AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
-    	final int position = info.position;
-    	if (!mShowInsert || mShowInsert && position > 0) {
-    		final MenuInflater inflater = getMenuInflater();
-    		inflater.inflate(R.menu.context_menu_notes, menu);
-    		if (categoryTab) {
-    			menu.removeItem(R.id.note_goto_session);
-    		}
-    	}
-	}
+    protected void onResume() {
+        startQuery();
 
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
-		switch (item.getItemId()) {
-			case R.id.note_goto_session:
-				if (mAdapter.getCursor().moveToPosition(mShowInsert ? info.position + 1 : info.position)) {
-					final String sessionId = mAdapter.getCursor().getString(NotesQuery.SESSION_ID);
-					final Uri sessionUri = Sessions.buildSessionUri(sessionId);
-			        final Intent intent = new Intent(Intent.ACTION_VIEW, sessionUri);
-			        startActivity(intent);
-				}
-		        return true;
-			case R.id.note_delete:
-				Bundle bundle = new Bundle();
-				bundle.putLong(DIALOG_NOTE_ID_ARG, info.id);
-				showDialog(R.id.dialog_delete_confirm, bundle);
-				return true;
-			default:
-				return super.onContextItemSelected(item);
-	  	}
-	}
+        super.onResume();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mAdapter.changeCursor(null);
+    }
 
     @Override
 	protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
@@ -172,13 +158,12 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 		public void onClick(DialogInterface dialog, int which) {
 			final Uri uri = Notes.buildNoteUri(notesId);
 			mHandler.startDelete(uri);
-			mAdapter.getCursor().requery();
+			mAdapter.onContentChanged();
         }
     }
 
     /** {@inheritDoc} */
     public void onQueryComplete(int token, Object cookie, Cursor cursor) {
-        startManagingCursor(cursor);
         mAdapter.changeCursor(cursor);
     }
 
@@ -186,9 +171,13 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         if (id >= 0) {
-            // Edit an existing note
-            final Uri noteUri = Notes.buildNoteUri(id);
-            startActivity(new Intent(Intent.ACTION_EDIT, noteUri));
+        	if (mAdapter.isGroupHeader(position)) {
+        		mAdapter.toggleGroup(position);
+        	} else {
+	            // Edit an existing note
+	            final Uri noteUri = Notes.buildNoteUri(id);
+	            startActivity(new Intent(Intent.ACTION_EDIT, noteUri));
+        	}
         } else {
             // Insert new note
             final Uri notesDirUri = getIntent().getData();
@@ -218,52 +207,192 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
     public void onSearchClick(View v) {
         UIUtils.goSearch(this);
     }
+    
+    private void startQuery() {
+    	mHandler.cancelOperation(NotesQuery.TOKEN);
+        mHandler.startQuery(NotesQuery.TOKEN, notesUri, NotesQuery.PROJECTION, NotesQuery.SORT);
+    }
+    
+    private class NotesAdapter extends GroupingListAdapter implements View.OnClickListener {
+    	
+    	public NotesAdapter(Context context) {
+    		super(context);
+    	}
 
-    /**
-     * {@link CursorAdapter} that renders a {@link NotesQuery}.
-     */
-    private class NotesAdapter extends CursorAdapter {
-        public NotesAdapter(Context context) {
-            super(context, null);
-        }
-
-        /** {@inheritDoc} */
         @Override
-        public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            return getLayoutInflater().inflate(R.layout.list_item_note, parent, false);
-        }
-
-        /** {@inheritDoc} */
-        @Override
-        public void bindView(View view, Context context, Cursor cursor) {
-            // TODO: format notes with better layout
-            ((TextView)view.findViewById(R.id.note_content)).setText(cursor
-                    .getString(NotesQuery.NOTE_CONTENT));
-
-            // TODO: format using note_before/into/after
-            final long time = cursor.getLong(NotesQuery.NOTE_TIME);
-            final CharSequence relativeTime = DateUtils.getRelativeTimeSpanString(time);
-            ((TextView) view.findViewById(R.id.note_time)).setText(relativeTime);
+        protected void onContentChanged() {
+            startQuery();
         }
 
         @Override
-        public boolean isEmpty() {
+		public void onClick(View view) {
+        	final ClickItem clickItem = (ClickItem) view.getTag();
+        	switch (clickItem.getItemType()) {
+        		case ClickItem.SESSION_ITEM:
+                	final Uri sessionUri = Sessions.buildSessionUri(clickItem.getId());
+                    final Intent intent = new Intent(Intent.ACTION_VIEW, sessionUri);
+                    startActivity(intent);
+        			break;
+        		case ClickItem.NOTE_ITEM:
+                    Bundle bundle = new Bundle();
+                    bundle.putLong(DIALOG_NOTE_ID_ARG, Long.valueOf(clickItem.getId()));
+                    showDialog(R.id.dialog_delete_confirm, bundle);
+        			break;
+        	}
+		}
+
+		@Override
+		protected void addGroups(Cursor cursor) {
+			int count = cursor.getCount();
+			if (categoryTab || count == 0) {
+				return;
+			}
+			
+			int groupItemCount = 1;
+			
+			String currentValue = null;
+			String value = null;
+			cursor.moveToFirst();
+			currentValue = cursor.getString(NotesQuery.SESSION_ID);
+			for (int i = 1; i < count; i++) {
+				cursor.moveToNext();
+				value = cursor.getString(NotesQuery.SESSION_ID);
+				boolean sameSession = currentValue.equals(value);
+				if (sameSession) {
+					groupItemCount++;
+				} else {
+					addGroup(i - groupItemCount, groupItemCount, true);
+					
+					groupItemCount = 1;
+					
+					String temp = currentValue;
+					currentValue = value;
+					value = temp;
+				}
+			}
+			addGroup(count - groupItemCount, groupItemCount, true);
+		}
+
+		@Override
+		protected void bindChildView(View view, Context context, Cursor cursor) {
+			bindStandAloneView(view, context, cursor);
+		}
+
+		@Override
+		protected void bindGroupView(View view, Context context, Cursor cursor,
+				int groupSize, boolean expanded) {
+			final NotesListItemViews views = (NotesListItemViews) view.getTag();
+			int groupIndicator = expanded 
+				? R.drawable.expander_ic_maximized
+				: R.drawable.expander_ic_minimized;
+			views.groupIndicator.setImageResource(groupIndicator);
+			views.gotoSessionView.setOnClickListener(this);
+			views.gotoSessionView.setTag(new ClickItem(ClickItem.SESSION_ITEM, cursor.getString(NotesQuery.SESSION_ID)));
+			views.sessionTitle.setText(cursor.getString(NotesQuery.SESSION_TITLE));
+			StateListDrawable drawable = new StateListDrawable();
+			drawable.addState(new int [] { -android.R.attr.state_window_focused }, 
+					new ColorDrawable(android.R.color.transparent));
+			drawable.addState(new int [] { -android.R.attr.state_focused, android.R.attr.state_pressed }, 
+					new ColorDrawable(android.R.drawable.list_selector_background));
+			drawable.addState(new int [] { android.R.attr.state_selected }, 
+					new ColorDrawable(android.R.color.transparent));
+			drawable.addState(new int [] { -android.R.attr.state_selected }, 
+					new ColorDrawable(UIUtils.lightenColor(cursor.getInt(NotesQuery.TRACK_COLOR))));
+			view.setBackgroundDrawable(drawable);
+		}
+
+		@Override
+		protected void bindStandAloneView(View view, Context context,
+				Cursor cursor) {
+			final NotesListItemViews views = (NotesListItemViews) view.getTag();
+			views.noteContent.setText(cursor.getString(NotesQuery.NOTE_CONTENT));
+			final long time = cursor.getLong(NotesQuery.NOTE_TIME);
+			final CharSequence relativeTime = DateUtils.getRelativeTimeSpanString(time);
+			views.noteTime.setText(relativeTime);
+			views.deleteNoteView.setOnClickListener(this);
+			views.deleteNoteView.setTag(new ClickItem(ClickItem.NOTE_ITEM, String.valueOf(cursor.getInt(NotesQuery._ID))));
+		}
+
+		@Override
+		protected View newChildView(Context context, ViewGroup parent) {
+			return newStandAloneView(context, parent);
+		}
+
+		@Override
+		protected View newGroupView(Context context, ViewGroup parent) {
+			View view = getLayoutInflater().inflate(R.layout.notes_list_group_item, parent, false);
+			findAndCacheViews(view);
+			return view;
+		}
+
+		@Override
+		protected View newStandAloneView(Context context, ViewGroup parent) {
+			View view = getLayoutInflater().inflate(R.layout.notes_list_child_item, parent, false);
+			findAndCacheViews(view);
+			return view;
+		}
+    	
+		@Override
+		public boolean isEmpty() {
             return mShowInsert ? false : super.isEmpty();
+		}
+
+		private void findAndCacheViews(View view) {
+            // Get the views to bind to
+            NotesListItemViews views = new NotesListItemViews();
+            views.sessionTitle = (TextView) view.findViewById(R.id.session_title);
+            views.groupIndicator = (ImageView) view.findViewById(R.id.groupIndicator);
+            views.gotoSessionView = view.findViewById(R.id.goto_icon);
+            views.noteContent = (TextView) view.findViewById(R.id.note_content);
+            views.noteTime = (TextView) view.findViewById(R.id.note_time);
+            views.deleteNoteView = view.findViewById(R.id.delete_icon);
+            view.setTag(views);
         }
+		
+    }
+    
+    private class ClickItem {
+    	public static final int SESSION_ITEM = 0x01;
+    	public static final int NOTE_ITEM = 0x02;
+
+    	private final int itemType;
+    	private final String id;
+		
+    	public ClickItem(int itemType, String id) {
+			this.itemType = itemType;
+			this.id = id;
+		}
+
+		public int getItemType() {
+			return itemType;
+		}
+
+		public String getId() {
+			return id;
+		}
     }
 
     /** {@link Notes} query parameters. */
     private interface NotesQuery {
+    	int TOKEN = 0x01;
+    	
         String[] PROJECTION = {
                 BaseColumns._ID,
                 Notes.NOTE_TIME,
                 Notes.NOTE_CONTENT,
                 Sessions.SESSION_ID,
+                Sessions.TITLE,
+                Tracks.TRACK_COLOR,
         };
+        
+        String SORT = Sessions.TITLE + " ASC, " + Notes.NOTE_TIME + " DESC";
+
 
         int _ID = 0;
         int NOTE_TIME = 1;
         int NOTE_CONTENT = 2;
         int SESSION_ID = 3;
+        int SESSION_TITLE = 4;
+        int TRACK_COLOR = 5;
     }
 }

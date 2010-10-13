@@ -35,4 +35,7 @@
     <declare-styleable name="FloorView">
     </declare-styleable>
 
+    <declare-styleable name="DontPressWithParentImageView">
+    </declare-styleable>
+
 </resources>

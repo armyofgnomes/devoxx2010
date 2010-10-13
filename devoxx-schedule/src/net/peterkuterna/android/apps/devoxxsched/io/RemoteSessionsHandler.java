@@ -58,15 +58,15 @@ public class RemoteSessionsHandler extends JSONHandler {
     private static final String TRACK_CLOUD_NOSQL = "cloudnosql";
     private static final String TRACK_OTHER = "other";
 
-    private static final String COLOR_JAVA_CORE = "#2A5699";
-    private static final String COLOR_WEB_FRAMEWORKS = "#FFCC00";
-    private static final String COLOR_DESKTOP_RIA_MOBILE = "#FF2222";
-    private static final String COLOR_NEW_JVM_LANG = "#0FABFF";
-    private static final String COLOR_METHODOLOGY = "#A0CE67";
-    private static final String COLOR_ARCHI_SEC = "#EEB211";
-    private static final String COLOR_CLOUD_NOSQL = "#0066CC";
-    private static final String COLOR_OTHER = "#BF0000";
-    private static final String COLOR_DEFAULT = "#F272526";
+    private static final String COLOR_JAVA_CORE = "#FF2A5699";
+    private static final String COLOR_WEB_FRAMEWORKS = "#FFFFCC00";
+    private static final String COLOR_DESKTOP_RIA_MOBILE = "#FFFF2222";
+    private static final String COLOR_NEW_JVM_LANG = "#FF0FABFF";
+    private static final String COLOR_METHODOLOGY = "#FFA0CE67";
+    private static final String COLOR_ARCHI_SEC = "#FFEEB211";
+    private static final String COLOR_CLOUD_NOSQL = "#FF0066CC";
+    private static final String COLOR_OTHER = "#FFBF0000";
+    private static final String COLOR_DEFAULT = "#FF272526";
     
     public RemoteSessionsHandler() {
 		super(ScheduleContract.CONTENT_AUTHORITY, false);

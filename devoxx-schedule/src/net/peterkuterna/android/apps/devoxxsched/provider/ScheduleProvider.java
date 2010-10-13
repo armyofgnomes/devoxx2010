@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Queue;
 
 import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Blocks;
 import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Notes;
@@ -620,8 +621,11 @@ public class ScheduleProvider extends ContentProvider {
             }
             case SESSIONS_ID_NOTES: {
                 final String sessionId = Sessions.getSessionId(uri);
-                return builder.table(Tables.NOTES)
-                        .where(Notes.SESSION_ID + "=?", sessionId);
+                return builder.table(Tables.NOTES_JOIN_SESSIONS_TRACKS)
+		        		.mapToTable(Notes._ID, Tables.NOTES)
+		        		.mapToTable(Notes.SESSION_ID, Tables.NOTES)
+                		.mapToTable(Tracks.TRACK_COLOR, Tables.TRACKS)
+                        .where(Qualified.NOTES_SESSION_ID + "=?", sessionId);
             }
             case SPEAKERS: {
                 return builder.table(Tables.SPEAKERS)
@@ -718,9 +722,10 @@ public class ScheduleProvider extends ContentProvider {
                         .where(Qualified.SESSIONS_BLOCK_ID + "=?", blockId);
             }
             case NOTES: {
-                return builder.table(Tables.NOTES_JOIN_SESSIONS)
+                return builder.table(Tables.NOTES_JOIN_SESSIONS_TRACKS)
                 		.mapToTable(Notes._ID, Tables.NOTES)
-                		.mapToTable(Notes.SESSION_ID, Tables.NOTES);
+                		.mapToTable(Notes.SESSION_ID, Tables.NOTES)
+                		.mapToTable(Tracks.TRACK_COLOR, Tables.TRACKS);
             }
             case NOTES_ID: {
                 final long noteId = Notes.getNoteId(uri);
@@ -803,7 +808,7 @@ public class ScheduleProvider extends ContentProvider {
         String TRACK_SESSIONS_COUNT = "(SELECT COUNT(" + Qualified.SESSIONS_TRACK_ID
                 + ") FROM " + Tables.SESSIONS + " WHERE "
                 + Qualified.SESSIONS_TRACK_ID + "=" + Qualified.TRACKS_TRACK_ID + ")";
-
+        
         String SESSIONS_SNIPPET = "snippet(" + Tables.SESSIONS_SEARCH + ",'{','}','\u2026')";
         String SPEAKERS_SNIPPET = "snippet(" + Tables.SPEAKERS_SEARCH + ",'{','}','\u2026')";
     }
@@ -833,6 +838,8 @@ public class ScheduleProvider extends ContentProvider {
         String SESSIONS_ROOM_ID = Tables.SESSIONS + "." + Sessions.ROOM_ID;
         String SESSIONS_TRACK_ID = Tables.SESSIONS + "." + Sessions.TRACK_ID;
         
+        String SPEAKERS_FIRST_NAME = Tables.SPEAKERS + "." + Speakers.FIRST_NAME;
+
         String SESSIONS_SPEAKERS_SESSION_ID = Tables.SESSIONS_SPEAKERS + "."
                 + SessionsSpeakers.SESSION_ID;
         String SESSIONS_SPEAKERS_SPEAKER_ID = Tables.SESSIONS_SPEAKERS + "."
@@ -843,6 +850,8 @@ public class ScheduleProvider extends ContentProvider {
         String TRACKS_TRACK_ID = Tables.TRACKS + "." + Tracks.TRACK_ID;
 
         String BLOCKS_BLOCK_ID = Tables.BLOCKS + "." + Blocks.BLOCK_ID;
+
+        String NOTES_SESSION_ID = Tables.NOTES + "." + Notes.SESSION_ID;
     }
 
 }
