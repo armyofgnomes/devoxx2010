@@ -45,8 +45,4 @@ public class AboutActivity extends Activity {
         UIUtils.goHome(this);
     }
 
-    public void onSearchClick(View v) {
-        UIUtils.goSearch(this);
-    }
-
 }
