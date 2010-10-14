@@ -16,52 +16,45 @@
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="?android:attr/listPreferredItemHeight" >
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:paddingLeft="7dip" > 
  
-    <net.peterkuterna.android.apps.devoxxsched.ui.widget.DontPressWithParentImageView android:id="@+id/delete_icon"
-        android:layout_width="wrap_content"
+    <net.peterkuterna.android.apps.devoxxsched.ui.widget.DontPressWithParentImageView 
+    	android:id="@+id/delete_icon"
+        android:layout_width="60dip"
         android:layout_height="match_parent"
-        android:paddingLeft="14dip"
-        android:paddingRight="14dip"
+        android:scaleType="center"
         android:layout_alignParentRight="true"
         android:gravity="center_vertical"
         android:src="@drawable/sym_action_delete_note"
         android:background="@drawable/goto_background" /> 
 
-    <View android:id="@+id/divider"
-        android:layout_width="1px"
-        android:layout_height="match_parent"
-        android:layout_marginTop="5dip"
-        android:layout_marginBottom="5dip"
-        android:layout_toLeftOf="@id/delete_icon"
-        android:layout_marginLeft="11dip"
-        android:background="@drawable/divider_vertical_dark" /> 
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	    android:orientation="vertical"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+		android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignWithParentIfMissing="true"
+        android:layout_toLeftOf="@+id/delete_icon"
+	    style="@style/ListItem">
 
-		<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-		    android:orientation="vertical"
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-   	        android:layout_alignParentLeft="true"
-	        android:layout_alignParentTop="true"
-	        android:layout_alignWithParentIfMissing="true"
-	        android:layout_toLeftOf="@+id/divider"
-		    style="@style/ListItem">
-		    <TextView
-		        android:id="@+id/note_content"
-		        android:layout_width="fill_parent"
-		        android:layout_height="0dip"
-		        android:layout_weight="1"
-		        android:maxLines="2"
-		        android:ellipsize="end"
-		        style="@style/NoteContent" />
-		    <TextView
-		        android:id="@+id/note_time"
-		        android:layout_width="fill_parent"
-		        android:layout_height="wrap_content"
-		        android:paddingTop="2dip"
-		        android:gravity="right"
-		        android:singleLine="true"
-		        style="@style/NoteTime" />
-		</LinearLayout>
+	    <TextView
+	        android:id="@+id/note_content"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:maxLines="2"
+	        android:ellipsize="end"
+	        style="@style/NoteContent" />
+	    <TextView
+	        android:id="@+id/note_time"
+	        android:layout_width="fill_parent"
+	        android:layout_height="wrap_content"
+	        android:paddingTop="2dip"
+	        android:gravity="left"
+	        android:singleLine="true"
+	        style="@style/NoteTime" />
+
+	</LinearLayout>
         
 </RelativeLayout>

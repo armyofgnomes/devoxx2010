@@ -19,10 +19,13 @@
  */
 package net.peterkuterna.android.apps.devoxxsched.ui;
 
+import java.util.HashMap;
+
 import net.peterkuterna.android.apps.devoxxsched.R;
 import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Notes;
 import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Sessions;
 import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Tracks;
+import net.peterkuterna.android.apps.devoxxsched.util.Maps;
 import net.peterkuterna.android.apps.devoxxsched.util.NotifyingAsyncQueryHandler;
 import net.peterkuterna.android.apps.devoxxsched.util.UIUtils;
 import net.peterkuterna.android.apps.devoxxsched.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
@@ -33,14 +36,18 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.PorterDuff.Mode;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.text.format.DateUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -50,6 +57,18 @@ import android.widget.TextView;
  * through {@link Intent#getData()}.
  */
 public class NotesActivity extends ListActivity implements AsyncQueryListener {
+	
+    private static final int COLOR_JAVA_CORE = 0xFF2A5699;
+    private static final int COLOR_WEB_FRAMEWORKS = 0xFFFFCC00;
+    private static final int COLOR_DESKTOP_RIA_MOBILE = 0xFFFF2222;
+    private static final int COLOR_NEW_JVM_LANG = 0xFF0FABFF;
+    private static final int COLOR_METHODOLOGY = 0xFFA0CE67;
+    private static final int COLOR_ARCHI_SEC = 0xFFEEB211;
+    private static final int COLOR_CLOUD_NOSQL = 0xFF0066CC;
+    private static final int COLOR_OTHER = 0xFFBF0000;
+    private static final int COLOR_DEFAULT = 0xFF272526;
+
+    private static HashMap<Integer, Drawable> backgroundDrawables;
 
 	private static final String TAG = "NotesActivity";
 	
@@ -65,13 +84,25 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 
     private NotifyingAsyncQueryHandler mHandler;
 
+    static {
+    	backgroundDrawables = Maps.newHashMap();
+    	backgroundDrawables.put(COLOR_ARCHI_SEC, createGroupBackgroundDrawable(COLOR_ARCHI_SEC));
+    	backgroundDrawables.put(COLOR_CLOUD_NOSQL, createGroupBackgroundDrawable(COLOR_CLOUD_NOSQL));
+    	backgroundDrawables.put(COLOR_DESKTOP_RIA_MOBILE, createGroupBackgroundDrawable(COLOR_DESKTOP_RIA_MOBILE));
+    	backgroundDrawables.put(COLOR_JAVA_CORE, createGroupBackgroundDrawable(COLOR_JAVA_CORE));
+    	backgroundDrawables.put(COLOR_METHODOLOGY, createGroupBackgroundDrawable(COLOR_METHODOLOGY));
+    	backgroundDrawables.put(COLOR_NEW_JVM_LANG, createGroupBackgroundDrawable(COLOR_NEW_JVM_LANG));
+    	backgroundDrawables.put(COLOR_OTHER, createGroupBackgroundDrawable(COLOR_OTHER));
+    	backgroundDrawables.put(COLOR_WEB_FRAMEWORKS, createGroupBackgroundDrawable(COLOR_WEB_FRAMEWORKS));
+    }
+    
 	public static final class NotesListItemViews {
 		TextView sessionTitle;
 		ImageView groupIndicator;
-		View gotoSessionView;
+		ImageView gotoSessionView;
 		TextView noteContent;
 		TextView noteTime;
-		View deleteNoteView;
+		ImageView deleteNoteView;
 	}
     
     @Override
@@ -99,7 +130,6 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
         mAdapter = new NotesAdapter(this);
         setListAdapter(mAdapter);
 
-        // Start background query to load notes
         mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
     }
 
@@ -261,7 +291,7 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 				if (sameSession) {
 					groupItemCount++;
 				} else {
-					addGroup(i - groupItemCount, groupItemCount, true);
+					addGroup(i - groupItemCount, groupItemCount, false);
 					
 					groupItemCount = 1;
 					
@@ -270,7 +300,7 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 					value = temp;
 				}
 			}
-			addGroup(count - groupItemCount, groupItemCount, true);
+			addGroup(count - groupItemCount, groupItemCount, false);
 		}
 
 		@Override
@@ -286,18 +316,16 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 				? R.drawable.expander_ic_maximized
 				: R.drawable.expander_ic_minimized;
 			views.groupIndicator.setImageResource(groupIndicator);
+			Integer colorKey = cursor.getInt(NotesQuery.TRACK_COLOR);
 			views.gotoSessionView.setOnClickListener(this);
+			views.gotoSessionView.setImageResource(R.drawable.sym_action_goto_session);
+			views.gotoSessionView.setColorFilter(colorKey, Mode.SRC_ATOP);
 			views.gotoSessionView.setTag(new ClickItem(ClickItem.SESSION_ITEM, cursor.getString(NotesQuery.SESSION_ID)));
 			views.sessionTitle.setText(cursor.getString(NotesQuery.SESSION_TITLE));
-			StateListDrawable drawable = new StateListDrawable();
-			drawable.addState(new int [] { -android.R.attr.state_window_focused }, 
-					new ColorDrawable(android.R.color.transparent));
-			drawable.addState(new int [] { -android.R.attr.state_focused, android.R.attr.state_pressed }, 
-					new ColorDrawable(android.R.drawable.list_selector_background));
-			drawable.addState(new int [] { android.R.attr.state_selected }, 
-					new ColorDrawable(android.R.color.transparent));
-			drawable.addState(new int [] { -android.R.attr.state_selected }, 
-					new ColorDrawable(UIUtils.lightenColor(cursor.getInt(NotesQuery.TRACK_COLOR))));
+			Drawable drawable = createGroupBackgroundDrawable(colorKey);
+			if (drawable == null) {
+				drawable = createGroupBackgroundDrawable(COLOR_DEFAULT);
+			}
 			view.setBackgroundDrawable(drawable);
 		}
 
@@ -310,7 +338,9 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 			final CharSequence relativeTime = DateUtils.getRelativeTimeSpanString(time);
 			views.noteTime.setText(relativeTime);
 			views.deleteNoteView.setOnClickListener(this);
+			views.deleteNoteView.setColorFilter(0xffff0000, Mode.SRC_ATOP);
 			views.deleteNoteView.setTag(new ClickItem(ClickItem.NOTE_ITEM, String.valueOf(cursor.getInt(NotesQuery._ID))));
+			view.requestLayout();
 		}
 
 		@Override
@@ -338,17 +368,30 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 		}
 
 		private void findAndCacheViews(View view) {
-            // Get the views to bind to
             NotesListItemViews views = new NotesListItemViews();
             views.sessionTitle = (TextView) view.findViewById(R.id.session_title);
             views.groupIndicator = (ImageView) view.findViewById(R.id.groupIndicator);
-            views.gotoSessionView = view.findViewById(R.id.goto_icon);
+            views.gotoSessionView = (ImageView) view.findViewById(R.id.goto_icon);
             views.noteContent = (TextView) view.findViewById(R.id.note_content);
             views.noteTime = (TextView) view.findViewById(R.id.note_time);
-            views.deleteNoteView = view.findViewById(R.id.delete_icon);
+            views.deleteNoteView = (ImageView) view.findViewById(R.id.delete_icon);
             view.setTag(views);
         }
 		
+    }
+    
+    private static Drawable createGroupBackgroundDrawable(int trackColor) {
+    	final int lightColor = UIUtils.lightenColor(trackColor);
+    	StateListDrawable drawable = new StateListDrawable();
+		drawable.addState(new int [] { -android.R.attr.state_window_focused }, 
+				new ColorDrawable(lightColor));
+		drawable.addState(new int [] { -android.R.attr.state_focused, android.R.attr.state_pressed }, 
+				new ColorDrawable(android.R.drawable.list_selector_background));
+		drawable.addState(new int [] { android.R.attr.state_selected }, 
+				new ColorDrawable(lightColor));
+		drawable.addState(new int [] { -android.R.attr.state_selected }, 
+				new ColorDrawable(lightColor));
+		return drawable;
     }
     
     private class ClickItem {
