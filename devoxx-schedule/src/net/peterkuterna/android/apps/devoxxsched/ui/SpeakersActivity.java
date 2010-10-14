@@ -32,9 +32,11 @@ import android.provider.BaseColumns;
 import android.text.Spannable;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AlphabetIndexer;
 import android.widget.CheckBox;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
+import android.widget.SectionIndexer;
 import android.widget.TextView;
 
 /**
@@ -105,7 +107,9 @@ public class SpeakersActivity extends ListActivity implements AsyncQueryListener
     /**
      * {@link CursorAdapter} that renders a {@link SpeakersQuery}.
      */
-    private class SpeakersAdapter extends CursorAdapter {
+    private class SpeakersAdapter extends CursorAdapter implements SectionIndexer {
+    	
+    	private AlphabetIndexer mIndexer;
     	
         public SpeakersAdapter(Context context) {
             super(context, null);
@@ -131,6 +135,29 @@ public class SpeakersActivity extends ListActivity implements AsyncQueryListener
             starButton.setVisibility(starred ? View.VISIBLE : View.INVISIBLE);
             starButton.setChecked(starred);
         }
+
+		@Override
+		public void changeCursor(Cursor cursor) {
+			super.changeCursor(cursor);
+			
+			mIndexer = new AlphabetIndexer(cursor, SpeakersQuery.LAST_NAME, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+		}
+
+		@Override
+		public int getPositionForSection(int section) {
+			return mIndexer.getPositionForSection(section);
+		}
+
+		@Override
+		public int getSectionForPosition(int position) {
+			return mIndexer.getSectionForPosition(position);
+		}
+
+		@Override
+		public Object[] getSections() {
+			return mIndexer.getSections();
+		}
+          
     }
 
     /**
@@ -165,6 +192,8 @@ public class SpeakersActivity extends ListActivity implements AsyncQueryListener
             starButton.setVisibility(starred ? View.VISIBLE : View.INVISIBLE);
             starButton.setChecked(starred);
         }
+
+    
     }
 
     /** {@link Speakers} query parameters. */
