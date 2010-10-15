@@ -27,8 +27,8 @@ import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Sessi
 import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Tracks;
 import net.peterkuterna.android.apps.devoxxsched.util.Maps;
 import net.peterkuterna.android.apps.devoxxsched.util.NotifyingAsyncQueryHandler;
-import net.peterkuterna.android.apps.devoxxsched.util.UIUtils;
 import net.peterkuterna.android.apps.devoxxsched.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
+import net.peterkuterna.android.apps.devoxxsched.util.UIUtils;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
@@ -44,10 +44,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.text.format.DateUtils;
-import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
+import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -102,7 +106,6 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 		ImageView gotoSessionView;
 		TextView noteContent;
 		TextView noteTime;
-		ImageView deleteNoteView;
 	}
     
     @Override
@@ -129,10 +132,37 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 
         mAdapter = new NotesAdapter(this);
         setListAdapter(mAdapter);
+        
+        registerForContextMenu(getListView());
 
         mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
     }
 
+	@Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		final AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) menuInfo;
+		final int position = info.position;
+		if ((!mShowInsert && !mAdapter.isGroupHeader(position)) || (mShowInsert && position > 0)) {
+            final MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.context_menu_notes, menu);
+		}
+    }
+    
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+		switch (item.getItemId()) {
+		case R.id.menu_delete_note:
+			Bundle bundle = new Bundle();
+			bundle.putLong(DIALOG_NOTE_ID_ARG, info.id);
+			showDialog(R.id.dialog_delete_confirm, bundle);
+			return true;
+		default:
+			return super.onContextItemSelected(item);
+		}
+	}
+    
     @Override
     protected void onResume() {
         startQuery();
@@ -260,19 +290,9 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 
         @Override
 		public void onClick(View view) {
-        	final ClickItem clickItem = (ClickItem) view.getTag();
-        	switch (clickItem.getItemType()) {
-        		case ClickItem.SESSION_ITEM:
-                	final Uri sessionUri = Sessions.buildSessionUri(clickItem.getId());
-                    final Intent intent = new Intent(Intent.ACTION_VIEW, sessionUri);
-                    startActivity(intent);
-        			break;
-        		case ClickItem.NOTE_ITEM:
-                    Bundle bundle = new Bundle();
-                    bundle.putLong(DIALOG_NOTE_ID_ARG, Long.valueOf(clickItem.getId()));
-                    showDialog(R.id.dialog_delete_confirm, bundle);
-        			break;
-        	}
+        	final Uri sessionUri = Sessions.buildSessionUri((String) view.getTag());
+            final Intent intent = new Intent(Intent.ACTION_VIEW, sessionUri);
+            startActivity(intent);
 		}
 
 		@Override
@@ -324,7 +344,7 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 			views.gotoSessionView.setOnClickListener(this);
 			views.gotoSessionView.setImageResource(R.drawable.sym_action_goto_session);
 			views.gotoSessionView.setColorFilter(colorKey, Mode.SRC_ATOP);
-			views.gotoSessionView.setTag(new ClickItem(ClickItem.SESSION_ITEM, cursor.getString(NotesQuery.SESSION_ID)));
+			views.gotoSessionView.setTag(cursor.getString(NotesQuery.SESSION_ID));
 			views.sessionTitle.setText(cursor.getString(NotesQuery.SESSION_TITLE));
 			Drawable drawable = createGroupBackgroundDrawable(colorKey);
 			if (drawable == null) {
@@ -341,9 +361,6 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 			final long time = cursor.getLong(NotesQuery.NOTE_TIME);
 			final CharSequence relativeTime = DateUtils.getRelativeTimeSpanString(time);
 			views.noteTime.setText(relativeTime);
-			views.deleteNoteView.setOnClickListener(this);
-			views.deleteNoteView.setColorFilter(0xffff0000, Mode.SRC_ATOP);
-			views.deleteNoteView.setTag(new ClickItem(ClickItem.NOTE_ITEM, String.valueOf(cursor.getInt(NotesQuery._ID))));
 			view.requestLayout();
 		}
 
@@ -378,7 +395,6 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
             views.gotoSessionView = (ImageView) view.findViewById(R.id.goto_icon);
             views.noteContent = (TextView) view.findViewById(R.id.note_content);
             views.noteTime = (TextView) view.findViewById(R.id.note_time);
-            views.deleteNoteView = (ImageView) view.findViewById(R.id.delete_icon);
             view.setTag(views);
         }
 		
@@ -398,27 +414,6 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 		return drawable;
     }
     
-    private class ClickItem {
-    	public static final int SESSION_ITEM = 0x01;
-    	public static final int NOTE_ITEM = 0x02;
-
-    	private final int itemType;
-    	private final String id;
-		
-    	public ClickItem(int itemType, String id) {
-			this.itemType = itemType;
-			this.id = id;
-		}
-
-		public int getItemType() {
-			return itemType;
-		}
-
-		public String getId() {
-			return id;
-		}
-    }
-
     /** {@link Notes} query parameters. */
     private interface NotesQuery {
     	int TOKEN = 0x01;
@@ -442,4 +437,5 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
         int SESSION_TITLE = 4;
         int TRACK_COLOR = 5;
     }
+    
 }
