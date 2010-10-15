@@ -28,5 +28,6 @@
         android:layout_height="fill_parent"
         android:text="@string/empty_speakers"
         android:gravity="center"
+        android:textColor="@android:color/black" 
         android:textAppearance="?android:attr/textAppearanceMedium" />
 </FrameLayout>

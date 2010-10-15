@@ -26,6 +26,12 @@
     <style name="Theme.DevoxxSched" parent="android:style/Theme.Light">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowContentOverlay">@null</item>
+    </style>
+    
+    <!-- Variation on the Light theme that turns off the title -->
+    <style name="Theme.DevoxxSchedSpeakers" parent="android:style/Theme.Light">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowContentOverlay">@null</item>
         <item name="android:textColorPrimary">@android:color/white</item>
     </style>
     

@@ -113,7 +113,7 @@
 		</activity>
 
 		<activity android:name=".ui.SpeakersActivity" 
-			android:theme="@style/Theme.DevoxxSched"
+			android:theme="@style/Theme.DevoxxSchedSpeakers"
 			android:label="@string/title_speakers">
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW" />
