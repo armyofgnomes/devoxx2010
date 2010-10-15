@@ -50,7 +50,9 @@ public class NoteEditActivity extends Activity implements AsyncQueryListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_note_edit);
 
-        ((TextView) findViewById(R.id.title_text)).setText(getTitle());
+        final String customTitle = getIntent().getStringExtra(Intent.EXTRA_TITLE);
+        ((TextView) findViewById(R.id.title_text)).setText(
+                customTitle != null ? customTitle : getTitle());
 
         mText = (EditText) findViewById(android.R.id.text1);
 

@@ -206,12 +206,16 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
         	} else {
 	            // Edit an existing note
 	            final Uri noteUri = Notes.buildNoteUri(id);
-	            startActivity(new Intent(Intent.ACTION_EDIT, noteUri));
+	            final Intent intent = new Intent(Intent.ACTION_EDIT, noteUri);
+	            intent.putExtra(Intent.EXTRA_TITLE, getString(R.string.title_note_edit));
+	            startActivity(intent);
         	}
         } else {
             // Insert new note
             final Uri notesDirUri = getIntent().getData();
-            startActivity(new Intent(Intent.ACTION_INSERT, notesDirUri));
+            final Intent intent = new Intent(Intent.ACTION_INSERT, notesDirUri);
+            intent.putExtra(Intent.EXTRA_TITLE, getString(R.string.title_note_create));
+            startActivity(intent);
         }
     }
 

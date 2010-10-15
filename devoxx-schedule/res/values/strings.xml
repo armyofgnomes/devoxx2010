@@ -40,6 +40,7 @@
     <string name="title_speaker_detail">Speaker detail</string>
     <string name="title_notes">Notes</string>
     <string name="title_note_edit">Edit note</string>
+    <string name="title_note_create">Create note</string>
     <string name="title_map">Map</string>
     <string name="title_starred">Starred</string>
     <string name="title_tracks">Tracks</string>
