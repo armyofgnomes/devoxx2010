@@ -68,12 +68,15 @@ public class SpeakersActivity extends ListActivity implements AsyncQueryListener
         if (!Speakers.isSearchUri(speakersUri)) {
             mAdapter = new SpeakersAdapter(this);
             projection = SpeakersQuery.PROJECTION;
+            getListView().setFastScrollEnabled(true);
         } else {
             mAdapter = new SearchAdapter(this);
             projection = SearchQuery.PROJECTION;
+            getListView().setFastScrollEnabled(false);
         }
 
         setListAdapter(mAdapter);
+        
 
         mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
         mHandler.startQuery(speakersUri, projection, Speakers.DEFAULT_SORT);
