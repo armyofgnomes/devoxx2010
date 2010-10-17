@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Queue;
 
 import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Blocks;
 import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Notes;

@@ -136,6 +136,7 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
         registerForContextMenu(getListView());
 
         mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
+        startQuery();
     }
 
 	@Override
@@ -163,19 +164,6 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 		}
 	}
     
-    @Override
-    protected void onResume() {
-        startQuery();
-
-        super.onResume();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mAdapter.changeCursor(null);
-    }
-
     @Override
 	protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
         switch (id) {
@@ -218,12 +206,13 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 		public void onClick(DialogInterface dialog, int which) {
 			final Uri uri = Notes.buildNoteUri(notesId);
 			mHandler.startDelete(uri);
-			mAdapter.onContentChanged();
+			mAdapter.getCursor().requery();
         }
     }
 
     /** {@inheritDoc} */
     public void onQueryComplete(int token, Object cookie, Cursor cursor) {
+    	startManagingCursor(cursor);
         mAdapter.changeCursor(cursor);
     }
 
@@ -284,11 +273,6 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
     	}
 
         @Override
-        protected void onContentChanged() {
-            startQuery();
-        }
-
-        @Override
 		public void onClick(View view) {
         	final Uri sessionUri = Sessions.buildSessionUri((String) view.getTag());
             final Intent intent = new Intent(Intent.ACTION_VIEW, sessionUri);
@@ -298,6 +282,7 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 		@Override
 		protected void addGroups(Cursor cursor) {
 			int count = cursor.getCount();
+
 			if (categoryTab || count == 0) {
 				return;
 			}
