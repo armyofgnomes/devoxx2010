@@ -30,7 +30,7 @@
         android:background="@drawable/goto_background" /> 
 
     <View android:id="@+id/divider"
-        android:layout_width="1dp"
+        android:layout_width="1px"
         android:layout_height="fill_parent"
         android:layout_toLeftOf="@id/goto_icon"
         android:layout_marginLeft="6dip"

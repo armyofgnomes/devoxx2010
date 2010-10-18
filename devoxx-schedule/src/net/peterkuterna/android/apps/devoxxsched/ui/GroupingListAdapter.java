@@ -203,10 +203,6 @@ public abstract class GroupingListAdapter extends BaseAdapter {
 
     public int getCount() {
         if (mDataValid && mCursor != null) {
-	        if (mCount != -1) {
-	            return mCount;
-	        }
-	
 	        int cursorPosition = 0;
 	        int count = 0;
 	        for (int i = 0; i < mGroupCount; i++) {
@@ -227,6 +223,7 @@ public abstract class GroupingListAdapter extends BaseAdapter {
 	        }
 	
 	        mCount = count + mCursor.getCount() - cursorPosition;
+
 	        return mCount;
         } else {
         	return 0;
@@ -491,8 +488,6 @@ public abstract class GroupingListAdapter extends BaseAdapter {
 		@Override
 		public void onChanged() {
 			mDataValid = true;
-			resetCache();
-			findGroups();
 			notifyDataSetChanged();
 		}
 
