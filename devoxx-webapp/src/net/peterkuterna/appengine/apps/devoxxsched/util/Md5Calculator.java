@@ -24,6 +24,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import com.google.appengine.api.urlfetch.HTTPHeader;
+import com.google.appengine.api.urlfetch.HTTPRequest;
 import com.google.appengine.api.urlfetch.HTTPResponse;
 import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
@@ -53,7 +55,10 @@ public class Md5Calculator {
 		try {
 			final URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
 			final URL url = new URL(requestUri);
-			Future<HTTPResponse> future = fetcher.fetchAsync(url);
+			final HTTPRequest request = new HTTPRequest(url);
+			request.setHeader(new HTTPHeader("Cache-Control", "no-cache,max-age=0"));
+			request.setHeader(new HTTPHeader("Pragma", "no-cache"));
+			Future<HTTPResponse> future = fetcher.fetchAsync(request);
 			HTTPResponse response = future.get();
 			if (response.getResponseCode() == 200) {
 				return response.getContent();
@@ -65,6 +70,7 @@ public class Md5Calculator {
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
+
 		return null;
 	}
 	
