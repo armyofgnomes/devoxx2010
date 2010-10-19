@@ -457,6 +457,10 @@ public class ScheduleDatabase extends SQLiteOpenHelper {
                         + "||'; '||" 
                         + Sessions.NOTE
                         + " FROM " + Tables.SESSIONS);
+                
+                db.execSQL("INSERT INTO " + Tables.SEARCH_SUGGEST
+                		+ "(" + SearchManager.SUGGEST_COLUMN_TEXT_1 + ")"
+                		+ " VALUES('flex')");
 
                 version = VER_RECREATE_FULLTEXT_TABLE;
         }
