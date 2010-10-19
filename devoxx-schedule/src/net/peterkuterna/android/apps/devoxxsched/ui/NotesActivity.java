@@ -280,6 +280,11 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 		}
 
 		@Override
+		protected void onContentChanged() {
+			startQuery();
+		}
+
+		@Override
 		protected void addGroups(Cursor cursor) {
 			int count = cursor.getCount();
 

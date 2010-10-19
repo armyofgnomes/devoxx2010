@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
-
+/*
+ * Adapted by Peter Kuterna for the Devoxx conference
+ */
 package net.peterkuterna.android.apps.devoxxsched.ui;
 
 import net.peterkuterna.android.apps.devoxxsched.util.ArrayUtils;
@@ -488,6 +490,8 @@ public abstract class GroupingListAdapter extends BaseAdapter {
 		@Override
 		public void onChanged() {
 			mDataValid = true;
+			resetCache();
+			findGroups();
 			notifyDataSetChanged();
 		}
 
