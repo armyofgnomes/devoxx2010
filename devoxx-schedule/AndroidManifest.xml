@@ -20,8 +20,8 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	android:installLocation="preferExternal"
-	android:versionCode="3" package="net.peterkuterna.android.apps.devoxxsched"
-	android:versionName="1.02">
+	android:versionCode="4" package="net.peterkuterna.android.apps.devoxxsched"
+	android:versionName="1.03">
 
 	<permission android:name="net.peterkuterna.android.apps.devoxxsched.permission.WRITE_SCHEDULE"
 		android:protectionLevel="normal" 
