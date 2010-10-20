@@ -82,6 +82,7 @@ public abstract class GroupingListAdapter extends BaseAdapter {
     private long[] mGroupMetadata;
 
     private SparseIntArray mPositionCache = new SparseIntArray();
+    
     private int mLastCachedListPosition;
     private int mLastCachedCursorPosition;
     private int mLastCachedGroup;
@@ -188,6 +189,8 @@ public abstract class GroupingListAdapter extends BaseAdapter {
      * {@link #addGroups} method.
      */
     protected void addGroup(int cursorPosition, int size, boolean expanded) {
+
+    	
         if (mGroupCount >= mGroupMetadata.length) {
             int newSize = ArrayUtils.idealLongArraySize(
                     mGroupMetadata.length + GROUP_METADATA_ARRAY_INCREMENT);
@@ -385,6 +388,7 @@ public abstract class GroupingListAdapter extends BaseAdapter {
         } else {
             mGroupMetadata[mPositionMetadata.groupPosition] |= EXPANDED_GROUP_MASK;
         }
+       
         resetCache();
         notifyDataSetChanged();
     }

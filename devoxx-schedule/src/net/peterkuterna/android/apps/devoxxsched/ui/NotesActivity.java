@@ -44,6 +44,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.text.format.DateUtils;
+import android.util.SparseBooleanArray;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
@@ -262,13 +263,15 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
     }
     
     private void startQuery() {
-    	mHandler.cancelOperation(NotesQuery.TOKEN);
+//    	mHandler.cancelOperation(NotesQuery.TOKEN);
         mHandler.startQuery(NotesQuery.TOKEN, notesUri, NotesQuery.PROJECTION, NotesQuery.SORT);
     }
     
     private class NotesAdapter extends GroupingListAdapter implements View.OnClickListener {
     	
-    	public NotesAdapter(Context context) {
+        private SparseBooleanArray mExpandedCache = new SparseBooleanArray();
+
+        public NotesAdapter(Context context) {
     		super(context);
     	}
 
@@ -279,10 +282,10 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
             startActivity(intent);
 		}
 
-		@Override
-		protected void onContentChanged() {
-			startQuery();
-		}
+//		@Override
+//		protected void onContentChanged() {
+//			startQuery();
+//		}
 
 		@Override
 		protected void addGroups(Cursor cursor) {
@@ -315,6 +318,32 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 				}
 			}
 			addGroup(count - groupItemCount, groupItemCount, false);
+		}
+
+		@Override
+		protected void addGroup(int cursorPosition, int size, boolean expanded) {
+			final Cursor cursor = getCursor();
+	        int curPos = cursor.getPosition();
+	        cursor.moveToPosition(cursorPosition);
+	    	int sessionId = cursor.getInt(NotesQuery.SESSION_ID);
+	        cursor.moveToPosition(curPos);
+	    	boolean newExpanded = mExpandedCache.get(sessionId, expanded);
+	        mExpandedCache.put(sessionId, newExpanded);
+
+	        super.addGroup(cursorPosition, size, newExpanded);
+		}
+
+		@Override
+		public void toggleGroup(int position) {
+			PositionMetadata positionMetadata = new PositionMetadata();
+	        obtainPositionMetadata(positionMetadata, position);
+
+			final Cursor cursor = getCursor();
+			cursor.moveToPosition(positionMetadata.cursorPosition);
+	    	int sessionId = cursor.getInt(NotesQuery.SESSION_ID);
+	        super.toggleGroup(position);
+
+	        mExpandedCache.put(sessionId, !positionMetadata.isExpanded);
 		}
 
 		@Override
