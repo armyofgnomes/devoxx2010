@@ -41,6 +41,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.BaseColumns;
 import android.text.format.DateUtils;
@@ -79,13 +80,13 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 	
     public static final String EXTRA_SHOW_INSERT = "net.peterkuterna.android.apps.devoxxsched.extra.SHOW_INSERT";
     
-    private static final String DIALOG_NOTE_ID_ARG = "id";
-
     private Uri notesUri;
     private NotesAdapter mAdapter;
 
     private boolean mShowInsert = false;
     private boolean categoryTab = false;
+    
+    private long deleteId = -1;
 
     private NotifyingAsyncQueryHandler mHandler;
 
@@ -156,9 +157,8 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 		AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
 		switch (item.getItemId()) {
 		case R.id.menu_delete_note:
-			Bundle bundle = new Bundle();
-			bundle.putLong(DIALOG_NOTE_ID_ARG, info.id);
-			showDialog(R.id.dialog_delete_confirm, bundle);
+			deleteId = info.id;
+			showDialog(R.id.dialog_delete_confirm);
 			return true;
 		default:
 			return super.onContextItemSelected(item);
@@ -166,22 +166,22 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 	}
     
     @Override
-	protected void onPrepareDialog(int id, Dialog dialog, Bundle args) {
+	protected void onPrepareDialog(int id, Dialog dialog) {
         switch (id) {
         	case R.id.dialog_delete_confirm:
-        		long notesId = args.getLong(DIALOG_NOTE_ID_ARG);
         		((AlertDialog) dialog).setButton(
         				AlertDialog.BUTTON_POSITIVE, 
         				getString(android.R.string.ok), 
-        				new DeleteConfirmClickListener(notesId));
+        				new DeleteConfirmClickListener(deleteId));
+        		deleteId = -1;
         		break;
         	default:
-        		super.onPrepareDialog(id, dialog, args);
+        		super.onPrepareDialog(id, dialog);
         }
 	}
 
 	@Override
-    protected Dialog onCreateDialog(int id, Bundle bundle) {
+    protected Dialog onCreateDialog(int id) {
         switch (id) {
             case R.id.dialog_delete_confirm: {
                 return new AlertDialog.Builder(this)
@@ -194,7 +194,7 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
                         .create();
             }
         }
-        return super.onCreateDialog(id, bundle);
+        return super.onCreateDialog(id);
     }
 
     private class DeleteConfirmClickListener implements DialogInterface.OnClickListener {
@@ -214,6 +214,7 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
     /** {@inheritDoc} */
     public void onQueryComplete(int token, Object cookie, Cursor cursor) {
     	startManagingCursor(cursor);
+    	cursor.setNotificationUri(getContentResolver(), Notes.CONTENT_URI);
         mAdapter.changeCursor(cursor);
     }
 
@@ -357,7 +358,9 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
 			Integer colorKey = cursor.getInt(NotesQuery.TRACK_COLOR);
 			views.gotoSessionView.setOnClickListener(this);
 			views.gotoSessionView.setImageResource(R.drawable.sym_action_goto_session);
-			views.gotoSessionView.setColorFilter(colorKey, Mode.SRC_ATOP);
+			if (Build.VERSION_CODES.FROYO == Build.VERSION.SDK_INT) {
+				views.gotoSessionView.setColorFilter(colorKey, Mode.SRC_ATOP);
+			}
 			views.gotoSessionView.setTag(cursor.getString(NotesQuery.SESSION_ID));
 			views.sessionTitle.setText(cursor.getString(NotesQuery.SESSION_TITLE));
 			Drawable drawable = createGroupBackgroundDrawable(colorKey);
