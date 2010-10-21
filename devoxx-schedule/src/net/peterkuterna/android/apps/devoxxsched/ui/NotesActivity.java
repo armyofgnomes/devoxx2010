@@ -263,7 +263,7 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
     }
     
     private void startQuery() {
-//    	mHandler.cancelOperation(NotesQuery.TOKEN);
+    	mHandler.cancelOperation(NotesQuery.TOKEN);
         mHandler.startQuery(NotesQuery.TOKEN, notesUri, NotesQuery.PROJECTION, NotesQuery.SORT);
     }
     
@@ -281,11 +281,6 @@ public class NotesActivity extends ListActivity implements AsyncQueryListener {
             final Intent intent = new Intent(Intent.ACTION_VIEW, sessionUri);
             startActivity(intent);
 		}
-
-//		@Override
-//		protected void onContentChanged() {
-//			startQuery();
-//		}
 
 		@Override
 		protected void addGroups(Cursor cursor) {
