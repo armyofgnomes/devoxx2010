@@ -47,6 +47,7 @@
         android:layout_margin="5dip"
         android:hint="@string/note_hint"
         android:freezesText="true"
+        android:capitalize="sentences"
         android:gravity="top">
         <requestFocus />
     </EditText>
