@@ -133,9 +133,9 @@ public class SyncService extends IntentService {
             boolean performRemoteSync = performRemoteSync(mResolver, mHttpClient, intent, context);
             if (performRemoteSync) {
             	// Always parse values for labs sessions
-            	mLocalExecutor.execute(context, "cache-labs-speakers.json", new RemoteSpeakersHandler(BaseHandler.LOCAL_LAB_SYNC));
-            	mLocalExecutor.execute(context, "cache-labs-presentations.json", new RemoteSessionsHandler(BaseHandler.LOCAL_LAB_SYNC));
-            	mLocalExecutor.execute(context, "cache-labs-schedule.json", new RemoteScheduleHandler(BaseHandler.LOCAL_LAB_SYNC));
+            	mLocalExecutor.execute(context, "cache-labs-speakers.json", new RemoteSpeakersHandler(localParse ? BaseHandler.LOCAL_SYNC : BaseHandler.LOCAL_LAB_SYNC));
+            	mLocalExecutor.execute(context, "cache-labs-presentations.json", new RemoteSessionsHandler(localParse ? BaseHandler.LOCAL_SYNC : BaseHandler.LOCAL_LAB_SYNC));
+            	mLocalExecutor.execute(context, "cache-labs-schedule.json", new RemoteScheduleHandler(localParse ? BaseHandler.LOCAL_SYNC : BaseHandler.LOCAL_LAB_SYNC));
             	
             	// Parse values from REST interface
 	            String md5 = mRemoteExecutor.executeGet(Constants.ROOMS_URL, new RemoteRoomsHandler(BaseHandler.REMOTE_SYNC));
