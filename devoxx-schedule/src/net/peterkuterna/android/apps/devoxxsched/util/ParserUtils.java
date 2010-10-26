@@ -45,6 +45,7 @@ public class ParserUtils {
     public static final String BLOCK_TYPE_BREAKFAST = "Breakfast";
     public static final String BLOCK_TYPE_KEYNOTE = "Keynote";
     public static final String BLOCK_TYPE_TALK = "Talk";
+    public static final String BLOCK_TYPE_LABS = "Labs";
 
     /** Used to sanitize a string to be {@link Uri} safe. */
     private static final Pattern sSanitizePattern = Pattern.compile("[^a-z0-9-_]");

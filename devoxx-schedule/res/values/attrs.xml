@@ -16,9 +16,7 @@
 -->
 <resources>
 
-    <declare-styleable name="BlocksLayout">
-        <attr name="columns" format="integer" />
-    </declare-styleable>
+    <declare-styleable name="BlocksLayout" />
 
     <declare-styleable name="TimeRulerView">
         <attr name="headerWidth" format="dimension" />

@@ -24,14 +24,13 @@ import java.util.HashMap;
 
 import net.peterkuterna.android.apps.devoxxsched.R;
 import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Blocks;
-import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Tracks;
 import net.peterkuterna.android.apps.devoxxsched.ui.widget.BlockView;
 import net.peterkuterna.android.apps.devoxxsched.ui.widget.BlocksLayout;
 import net.peterkuterna.android.apps.devoxxsched.util.Maps;
 import net.peterkuterna.android.apps.devoxxsched.util.NotifyingAsyncQueryHandler;
+import net.peterkuterna.android.apps.devoxxsched.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import net.peterkuterna.android.apps.devoxxsched.util.ParserUtils;
 import net.peterkuterna.android.apps.devoxxsched.util.UIUtils;
-import net.peterkuterna.android.apps.devoxxsched.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -86,6 +85,7 @@ public class BlocksActivity extends Activity implements AsyncQueryListener, View
         map.put(ParserUtils.BLOCK_TYPE_BREAKFAST, 0);
         map.put(ParserUtils.BLOCK_TYPE_COFFEE_BREAK, 0);
         map.put(ParserUtils.BLOCK_TYPE_LUNCH, 0);
+        map.put(ParserUtils.BLOCK_TYPE_LABS, 2);
         return map;
     }
 
@@ -143,7 +143,7 @@ public class BlocksActivity extends Activity implements AsyncQueryListener, View
         mBlocks.removeAllBlocks();
 
         try {
-            while (cursor.moveToNext()) {
+        	while (cursor.moveToNext()) {
                 final String type = cursor.getString(BlocksQuery.BLOCK_TYPE);
                 final Integer column = sTypeColumnMap.get(type);
                 // TODO: place random blocks at bottom of entire layout
@@ -170,7 +170,7 @@ public class BlocksActivity extends Activity implements AsyncQueryListener, View
                 }
 
                 mBlocks.addBlock(blockView);
-            }
+        	}
         } finally {
             cursor.close();
         }
@@ -248,4 +248,5 @@ public class BlocksActivity extends Activity implements AsyncQueryListener, View
         int SESSIONS_COUNT = 6;
         int CONTAINS_STARRED = 7;
     }
+    
 }

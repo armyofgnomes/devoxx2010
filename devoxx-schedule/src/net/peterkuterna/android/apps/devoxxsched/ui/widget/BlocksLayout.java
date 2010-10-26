@@ -15,7 +15,7 @@
  */
 
 /*
- * Modified by Peter Kuterna to only support 2 columns.
+ * Modified by Peter Kuterna to support dynamic number of columns.
  */
 package net.peterkuterna.android.apps.devoxxsched.ui.widget;
 
@@ -23,6 +23,7 @@ import net.peterkuterna.android.apps.devoxxsched.R;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.util.SparseIntArray;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -32,10 +33,10 @@ import android.view.ViewGroup;
  * {@link R.id#blocks_now} view when applicable.
  */
 public class BlocksLayout extends ViewGroup {
-    private int mColumns = 2;
 
     private TimeRulerView mRulerView;
     private View mNowView;
+    private SparseIntArray columnArray = new SparseIntArray();
 
     public BlocksLayout(Context context) {
         this(context, null);
@@ -50,8 +51,6 @@ public class BlocksLayout extends ViewGroup {
 
         final TypedArray a = context.obtainStyledAttributes(attrs,
                 R.styleable.BlocksLayout, defStyle, 0);
-
-        mColumns = a.getInt(R.styleable.TimeRulerView_headerWidth, mColumns);
 
         a.recycle();
     }
@@ -69,8 +68,8 @@ public class BlocksLayout extends ViewGroup {
             throw new IllegalStateException("Must include a R.id.blocks_now view.");
         }
     }
-
-    /**
+    
+	/**
      * Remove any {@link BlockView} instances, leaving only
      * {@link TimeRulerView} remaining.
      */
@@ -79,10 +78,14 @@ public class BlocksLayout extends ViewGroup {
         removeAllViews();
         addView(mRulerView);
         addView(mNowView);
+        columnArray.clear();
     }
 
     public void addBlock(BlockView blockView) {
         blockView.setDrawingCacheEnabled(true);
+        final int columnIndex = blockView.getColumn();
+        int curEntries = columnArray.get(columnIndex + 1, 0);
+        columnArray.put(columnIndex, ++curEntries);
         addView(blockView, 1);
     }
 
@@ -105,8 +108,9 @@ public class BlocksLayout extends ViewGroup {
         ensureChildren();
 
         final TimeRulerView rulerView = mRulerView;
+        final int nrColumns = getColumns();
         final int headerWidth = rulerView.getHeaderWidth();
-        final int columnWidth = (getWidth() - headerWidth) / mColumns;
+        final int columnWidth = (getWidth() - headerWidth) / nrColumns;
 
         rulerView.layout(0, 0, getWidth(), getHeight());
 
@@ -117,9 +121,10 @@ public class BlocksLayout extends ViewGroup {
 
             if (child instanceof BlockView) {
                 final BlockView blockView = (BlockView) child;
+                final int columnIndex = getColumnIndex(blockView);
                 final int top = rulerView.getTimeVerticalOffset(blockView.getStartTime());
                 final int bottom = rulerView.getTimeVerticalOffset(blockView.getEndTime());
-                final int left = headerWidth + (blockView.getColumn() * columnWidth);
+                final int left = headerWidth + (columnIndex * columnWidth);
                 final int right = left + columnWidth;
                 child.layout(left, top, right, bottom);
             }
@@ -136,4 +141,15 @@ public class BlocksLayout extends ViewGroup {
 
         nowView.layout(left, top, right, bottom);
     }
+    
+    private int getColumns() {
+    	return Math.max(1, columnArray.size());
+    }
+    
+    private int getColumnIndex(BlockView blockView) {
+    	final int column = blockView.getColumn();
+    	final int diff = columnArray.keyAt(columnArray.indexOfKey(column)) - columnArray.indexOfKey(column);
+    	return column - diff;
+    }
+    
 }

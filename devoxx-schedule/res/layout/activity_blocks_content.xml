@@ -28,8 +28,7 @@
         class="net.peterkuterna.android.apps.devoxxsched.ui.widget.BlocksLayout"
         android:id="@+id/blocks"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        devoxx:columns="2">
+        android:layout_height="wrap_content">
         <view
             class="net.peterkuterna.android.apps.devoxxsched.ui.widget.TimeRulerView"
             android:id="@id/blocks_ruler"
