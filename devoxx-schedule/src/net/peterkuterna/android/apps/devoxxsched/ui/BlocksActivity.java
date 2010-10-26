@@ -20,13 +20,10 @@
  */
 package net.peterkuterna.android.apps.devoxxsched.ui;
 
-import java.util.HashMap;
-
 import net.peterkuterna.android.apps.devoxxsched.R;
 import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Blocks;
 import net.peterkuterna.android.apps.devoxxsched.ui.widget.BlockView;
 import net.peterkuterna.android.apps.devoxxsched.ui.widget.BlocksLayout;
-import net.peterkuterna.android.apps.devoxxsched.util.Maps;
 import net.peterkuterna.android.apps.devoxxsched.util.NotifyingAsyncQueryHandler;
 import net.peterkuterna.android.apps.devoxxsched.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import net.peterkuterna.android.apps.devoxxsched.util.ParserUtils;
@@ -74,20 +71,6 @@ public class BlocksActivity extends Activity implements AsyncQueryListener, View
     private NotifyingAsyncQueryHandler mHandler;
 
     private static final int DISABLED_BLOCK_ALPHA = 160;
-
-    private static final HashMap<String, Integer> sTypeColumnMap = buildTypeColumnMap();
-
-    private static HashMap<String, Integer> buildTypeColumnMap() {
-        final HashMap<String, Integer> map = Maps.newHashMap();
-        map.put(ParserUtils.BLOCK_TYPE_REGISTRATION, 0);
-        map.put(ParserUtils.BLOCK_TYPE_TALK, 1);
-        map.put(ParserUtils.BLOCK_TYPE_KEYNOTE, 1);
-        map.put(ParserUtils.BLOCK_TYPE_BREAKFAST, 0);
-        map.put(ParserUtils.BLOCK_TYPE_COFFEE_BREAK, 0);
-        map.put(ParserUtils.BLOCK_TYPE_LUNCH, 0);
-        map.put(ParserUtils.BLOCK_TYPE_LABS, 2);
-        return map;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,7 +128,7 @@ public class BlocksActivity extends Activity implements AsyncQueryListener, View
         try {
         	while (cursor.moveToNext()) {
                 final String type = cursor.getString(BlocksQuery.BLOCK_TYPE);
-                final Integer column = sTypeColumnMap.get(type);
+                final Integer column = ParserUtils.sTypeColumnMap.get(type);
                 // TODO: place random blocks at bottom of entire layout
                 if (column == null) continue;
 

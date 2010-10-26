@@ -44,8 +44,8 @@ public class RemoteSpeakersHandler extends JSONHandler {
 
     private static final String TAG = "SpeakersHandler";
 
-    public RemoteSpeakersHandler() {
-		super(ScheduleContract.CONTENT_AUTHORITY, false);
+    public RemoteSpeakersHandler(int syncType) {
+		super(ScheduleContract.CONTENT_AUTHORITY, syncType);
 	}
 
 	@Override
@@ -89,12 +89,14 @@ public class RemoteSpeakersHandler extends JSONHandler {
             if (build) batch.add(builder.build());
         }
         
-        if (speakers.length() > 0) {
+        if (isRemoteSync() && speakers.length() > 0) {
 		    for (String lostId : getLostIds(speakerIds, Speakers.CONTENT_URI, SpeakersQuery.PROJECTION, SpeakersQuery.SPEAKER_ID, resolver)) {
-		    	Uri deleteUri = Speakers.buildSessionsDirUri(lostId);
-		    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
-		    	deleteUri = Speakers.buildSpeakerUri(lostId);
-		    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
+		    	if (Integer.valueOf(lostId) < 901) {
+			    	Uri deleteUri = Speakers.buildSessionsDirUri(lostId);
+			    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
+			    	deleteUri = Speakers.buildSpeakerUri(lostId);
+			    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
+		    	}
 		    }
         }
 
@@ -110,10 +112,10 @@ public class RemoteSpeakersHandler extends JSONHandler {
         	final String curLastName = cursor.getString(SpeakersQuery.LAST_NAME).toLowerCase().trim();
         	final String curBio = cursor.getString(SpeakersQuery.BIO).toLowerCase().trim();
         	final String curCompany = cursor.getString(SpeakersQuery.COMPANY).toLowerCase().trim();
-        	final String newFirstName = speaker.getString("firstName").toLowerCase().trim();
-        	final String newLastName = speaker.getString("lastName").toLowerCase().trim();
-        	final String newBio = speaker.getString("bio").toLowerCase().trim();
-        	final String newCompany = speaker.getString("company").toLowerCase().trim();
+        	final String newFirstName = speaker.has("firstName") ? speaker.getString("firstName").toLowerCase().trim() : curFirstName;
+        	final String newLastName = speaker.has("lastName") ? speaker.getString("lastName").toLowerCase().trim() : curLastName;
+        	final String newBio = speaker.has("bio") ? speaker.getString("bio").toLowerCase().trim() : curBio;
+        	final String newCompany = speaker.has("company") ? speaker.getString("company").toLowerCase().trim() : curCompany;
         	
         	return (!curFirstName.equals(newFirstName)
         			|| !curLastName.equals(newLastName)

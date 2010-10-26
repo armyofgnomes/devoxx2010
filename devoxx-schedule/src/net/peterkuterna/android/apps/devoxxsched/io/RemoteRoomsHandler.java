@@ -43,8 +43,8 @@ public class RemoteRoomsHandler extends JSONHandler {
 
     private static final String TAG = "RoomsHandler";
 
-    public RemoteRoomsHandler() {
-		super(ScheduleContract.CONTENT_AUTHORITY, false);
+    public RemoteRoomsHandler(int syncType) {
+		super(ScheduleContract.CONTENT_AUTHORITY, syncType);
 	}
 
 	@Override
@@ -75,7 +75,7 @@ public class RemoteRoomsHandler extends JSONHandler {
 		    batch.add(builder.build());
         }
 
-        if (rooms.length() > 0) {
+        if (isRemoteSync() && rooms.length() > 0) {
 		    for (String lostId : getLostIds(roomIds, Rooms.CONTENT_URI, RoomsQuery.PROJECTION, RoomsQuery.ROOM_ID, resolver)) {
 		    	final Uri lostRoomUri = Rooms.buildRoomUri(lostId);
 		    	batch.add(ContentProviderOperation.newDelete(lostRoomUri).build());

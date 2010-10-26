@@ -21,6 +21,7 @@ package net.peterkuterna.android.apps.devoxxsched.service;
 
 import net.peterkuterna.android.apps.devoxxsched.Constants;
 import net.peterkuterna.android.apps.devoxxsched.R;
+import net.peterkuterna.android.apps.devoxxsched.io.BaseHandler;
 import net.peterkuterna.android.apps.devoxxsched.io.LocalExecutor;
 import net.peterkuterna.android.apps.devoxxsched.io.LocalSearchSuggestHandler;
 import net.peterkuterna.android.apps.devoxxsched.io.RemoteExecutor;
@@ -76,7 +77,7 @@ public class SyncService extends IntentService {
 
     private static final int VERSION_NONE = 0;
     private static final int VERSION_LOCAL = 1;
-    private static final int VERSION_REMOTE = 3;
+    private static final int VERSION_REMOTE = 4;
 
     private LocalExecutor mLocalExecutor;
     private RemoteExecutor mRemoteExecutor;
@@ -118,10 +119,10 @@ public class SyncService extends IntentService {
             if (localParse) {
                 // Parse values from local cache first
                 mLocalExecutor.execute(R.xml.search_suggest, new LocalSearchSuggestHandler());
-            	mLocalExecutor.execute(context, "cache-rooms.json", new RemoteRoomsHandler());
-            	mLocalExecutor.execute(context, "cache-speakers.json", new RemoteSpeakersHandler());
-            	mLocalExecutor.execute(context, "cache-presentations.json", new RemoteSessionsHandler());
-            	mLocalExecutor.execute(context, "cache-schedule.json", new RemoteScheduleHandler());
+            	mLocalExecutor.execute(context, "cache-rooms.json", new RemoteRoomsHandler(BaseHandler.LOCAL_SYNC));
+            	mLocalExecutor.execute(context, "cache-speakers.json", new RemoteSpeakersHandler(BaseHandler.LOCAL_SYNC));
+            	mLocalExecutor.execute(context, "cache-presentations.json", new RemoteSessionsHandler(BaseHandler.LOCAL_SYNC));
+            	mLocalExecutor.execute(context, "cache-schedule.json", new RemoteScheduleHandler(BaseHandler.LOCAL_SYNC));
 
                 // Save local parsed version
             	syncServicePrefs.edit().putInt(SyncPrefs.LOCAL_VERSION, VERSION_LOCAL).commit();
@@ -131,14 +132,19 @@ public class SyncService extends IntentService {
             final long startRemote = System.currentTimeMillis();
             boolean performRemoteSync = performRemoteSync(mResolver, mHttpClient, intent, context);
             if (performRemoteSync) {
+            	// Always parse values for labs sessions
+            	mLocalExecutor.execute(context, "cache-labs-speakers.json", new RemoteSpeakersHandler(BaseHandler.LOCAL_LAB_SYNC));
+            	mLocalExecutor.execute(context, "cache-labs-presentations.json", new RemoteSessionsHandler(BaseHandler.LOCAL_LAB_SYNC));
+            	mLocalExecutor.execute(context, "cache-labs-schedule.json", new RemoteScheduleHandler(BaseHandler.LOCAL_LAB_SYNC));
+            	
             	// Parse values from REST interface
-	            String md5 = mRemoteExecutor.executeGet(Constants.ROOMS_URL, new RemoteRoomsHandler());
+	            String md5 = mRemoteExecutor.executeGet(Constants.ROOMS_URL, new RemoteRoomsHandler(BaseHandler.REMOTE_SYNC));
 	            SyncUtils.updateLocalMd5(mResolver, Constants.ROOMS_URL, md5);
-	            md5 = mRemoteExecutor.executeGet(Constants.SPEAKERS_URL, new RemoteSpeakersHandler());
+	            md5 = mRemoteExecutor.executeGet(Constants.SPEAKERS_URL, new RemoteSpeakersHandler(BaseHandler.REMOTE_SYNC));
 	            SyncUtils.updateLocalMd5(mResolver, Constants.SPEAKERS_URL, md5);
-	            md5 = mRemoteExecutor.executeGet(Constants.PRESENTATIONS_URL, new RemoteSessionsHandler());
+	            md5 = mRemoteExecutor.executeGet(Constants.PRESENTATIONS_URL, new RemoteSessionsHandler(BaseHandler.REMOTE_SYNC));
 	            SyncUtils.updateLocalMd5(mResolver, Constants.PRESENTATIONS_URL, md5);
-	            md5 = mRemoteExecutor.executeGet(Constants.SCHEDULE_URL, new RemoteScheduleHandler());
+	            md5 = mRemoteExecutor.executeGet(Constants.SCHEDULE_URL, new RemoteScheduleHandler(BaseHandler.REMOTE_SYNC));
 	            SyncUtils.updateLocalMd5(mResolver, Constants.SCHEDULE_URL, md5);
 
 	            // Save last remote sync time

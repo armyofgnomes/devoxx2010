@@ -20,6 +20,7 @@
 package net.peterkuterna.android.apps.devoxxsched.util;
 
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.regex.Pattern;
 
 import net.peterkuterna.android.apps.devoxxsched.io.JSONHandler;
@@ -45,7 +46,21 @@ public class ParserUtils {
     public static final String BLOCK_TYPE_BREAKFAST = "Breakfast";
     public static final String BLOCK_TYPE_KEYNOTE = "Keynote";
     public static final String BLOCK_TYPE_TALK = "Talk";
-    public static final String BLOCK_TYPE_LABS = "Labs";
+    public static final String BLOCK_TYPE_LAB = "Lab";
+
+    public static final HashMap<String, Integer> sTypeColumnMap = buildTypeColumnMap();
+
+    private static HashMap<String, Integer> buildTypeColumnMap() {
+        final HashMap<String, Integer> map = Maps.newHashMap();
+        map.put(ParserUtils.BLOCK_TYPE_REGISTRATION, 0);
+        map.put(ParserUtils.BLOCK_TYPE_TALK, 1);
+        map.put(ParserUtils.BLOCK_TYPE_KEYNOTE, 1);
+        map.put(ParserUtils.BLOCK_TYPE_BREAKFAST, 0);
+        map.put(ParserUtils.BLOCK_TYPE_COFFEE_BREAK, 0);
+        map.put(ParserUtils.BLOCK_TYPE_LUNCH, 0);
+        map.put(ParserUtils.BLOCK_TYPE_LAB, 2);
+        return map;
+    }
 
     /** Used to sanitize a string to be {@link Uri} safe. */
     private static final Pattern sSanitizePattern = Pattern.compile("[^a-z0-9-_]");

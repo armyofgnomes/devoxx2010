@@ -38,8 +38,8 @@ import android.os.RemoteException;
  */
 public abstract class XmlHandler extends BaseHandler {
 	
-    public XmlHandler(String mAuthority, boolean localSync) {
-		super(mAuthority, localSync);
+    public XmlHandler(String mAuthority, int syncType) {
+		super(mAuthority, syncType);
 	}
 
 	/**

@@ -50,7 +50,6 @@ public class LocalExecutor {
     public void execute(int resId, XmlHandler handler) throws XmlHandlerException {
         final XmlResourceParser parser = mRes.getXml(resId);
         try {
-        	handler.setLocalSync(true);
             handler.parseAndApply(parser, mResolver);
         } finally {
             parser.close();
@@ -61,7 +60,6 @@ public class LocalExecutor {
 		try {
 		    final InputStream input = context.getAssets().open(assetName);
 		    final XmlPullParser parser = ParserUtils.newPullParser(input);
-		    handler.setLocalSync(true);
 		    handler.parseAndApply(parser, mResolver);
 		} catch (XmlHandlerException e) {
 		    throw e;
@@ -79,8 +77,7 @@ public class LocalExecutor {
             byte [] buffer = new byte[input.available()];
             while (input.read(buffer) != -1);
             String jsontext = new String(buffer);
-            JSONArray entries = new JSONArray(jsontext);  
-            handler.setLocalSync(true);
+            JSONArray entries = new JSONArray(jsontext);
             handler.parseAndApply(entries, mResolver);
         } catch (JSONHandlerException e) {
             throw e;

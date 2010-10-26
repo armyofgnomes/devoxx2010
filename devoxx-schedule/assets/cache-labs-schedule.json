@@ -1,0 +1,182 @@
+[
+	{
+		"speaker":"JetBrains",
+		"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/901",
+		"code":"D10_L_15_01_01",
+		"fromTime":"2010-11-15 09:30:00.0",
+		"partnerSlot":false,
+		"type":"Labs (3h)",
+		"speakers":[
+			{
+				"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/901",
+				"speaker":"JetBrains"
+			}
+		],
+		"kind":"Lab",
+		"toTime":"2010-11-15 12:30:00.0",
+		"id":901,
+		"title":"Language-Oriented Programming in Action",
+		"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/901",
+		"room":"BOF 1"
+	},
+	{
+		"speaker":"Geertjan Wielenga",
+		"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/902",
+		"code":"D10_L_15_02_01",
+		"fromTime":"2010-11-15 09:30:00.0",
+		"partnerSlot":false,
+		"type":"Labs (3h)",
+		"speakers":[
+			{
+				"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/902",
+				"speaker":"Geertjan Wielenga"
+			}
+		],
+		"kind":"Lab",
+		"toTime":"2010-11-15 12:30:00.0",
+		"id":902,
+		"title":"Developing Substantial Java Desktop Applications",
+		"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/902",
+		"room":"BOF 2"
+	},
+	{
+		"speaker":"Aslak Knutsen",
+		"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/903",
+		"code":"D10_L_15_01_02",
+		"fromTime":"2010-11-15 13:30:00.0",
+		"partnerSlot":false,
+		"type":"Labs (3h)",
+		"speakers":[
+			{
+				"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/903",
+				"speaker":"Aslak Knutsen"
+			},
+			{
+				"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/244",
+				"speaker":"Dan Allen"
+			},
+			{
+				"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/295",
+				"speaker":"Pete Muir"
+			}
+		],
+		"kind":"Lab",
+		"toTime":"2010-11-15 16:30:00.0",
+		"id":903,
+		"title":"Java enterprise testing made easy with Arquillian",
+		"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/903",
+		"room":"BOF 1"
+	},
+	{
+		"speaker":"Timothy Ward",
+		"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/904",
+		"code":"D10_L_15_02_02",
+		"fromTime":"2010-11-15 13:30:00.0",
+		"partnerSlot":false,
+		"type":"Labs (3h)",
+		"speakers":[
+			{
+				"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/216",
+				"speaker":"Timothy Ward"
+			},
+			{
+				"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/904",
+				"speaker":"Zoe Slattery"
+			}
+		],
+		"kind":"Lab",
+		"toTime":"2010-11-15 16:30:00.0",
+		"id":904,
+		"title":"Developing Enterprise OSGi applications",
+		"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/216",
+		"room":"BOF 2"
+	},
+	{
+		"speaker":"Dick Wall",
+		"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/905",
+		"code":"D10_L_16_01_01",
+		"fromTime":"2010-11-16 09:30:00.0",
+		"partnerSlot":false,
+		"type":"Labs (3h)",
+		"speakers":[
+			{
+				"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/272",
+				"speaker":"Dick Wall"
+			},
+			{
+				"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/273",
+				"speaker":"Bill Venners"
+			}
+		],
+		"kind":"Lab",
+		"toTime":"2010-11-16 12:30:00.0",
+		"id":905,
+		"title":"Hands-On Scala",
+		"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/272",
+		"room":"BOF 1"
+	},
+	{
+		"speaker":"Marc Portier",
+		"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/906",
+		"code":"D10_L_16_02_01",
+		"fromTime":"2010-11-16 09:30:00.0",
+		"partnerSlot":false,
+		"type":"Labs (3h)",
+		"speakers":[
+			{
+				"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/160",
+				"speaker":"Marc Portier"
+			}
+		],
+		"kind":"Lab",
+		"toTime":"2010-11-16 12:30:00.0",
+		"id":906,
+		"title":"RESTful development with Java",
+		"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/160",
+		"room":"BOF 2"
+	},
+	{
+		"speaker":"Michael Chaize",
+		"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/907",
+		"code":"D10_L_16_01_02",
+		"fromTime":"2010-11-16 13:30:00.0",
+		"partnerSlot":false,
+		"type":"Labs (3h)",
+		"speakers":[
+			{
+				"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/331",
+				"speaker":"Michael Chaize"
+			}
+		],
+		"kind":"Lab",
+		"toTime":"2010-11-16 16:30:00.0",
+		"id":907,
+		"title":"Develop your first Flex 4 application",
+		"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/331",
+		"room":"BOF 1"
+	},
+	{
+		"speaker":"Alexis Moussine-Pouchkine",
+		"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/908",
+		"code":"D10_L_16_02_02",
+		"fromTime":"2010-11-16 13:30:00.0",
+		"partnerSlot":false,
+		"type":"Labs (3h)",
+		"speakers":[
+			{
+				"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/182",
+				"speaker":"Alexis Moussine-Pouchkine"
+			},
+			{
+				"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/116",
+				"speaker":"Antonio Goncalves"
+			}
+		],
+		"kind":"Lab",
+		"toTime":"2010-11-16 16:30:00.0",
+		"id":908,
+		"title":"Beginning with the Java EE 6 Platform",
+		"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/182",
+		"room":"BOF 2"
+	}
+]

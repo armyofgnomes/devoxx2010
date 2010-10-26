@@ -68,8 +68,8 @@ public class RemoteSessionsHandler extends JSONHandler {
     private static final String COLOR_OTHER = "#FFBF0000";
     private static final String COLOR_DEFAULT = "#FF272526";
     
-    public RemoteSessionsHandler() {
-		super(ScheduleContract.CONTENT_AUTHORITY, false);
+    public RemoteSessionsHandler(int syncType) {
+		super(ScheduleContract.CONTENT_AUTHORITY, syncType);
 	}
 
 	@Override
@@ -96,7 +96,7 @@ public class RemoteSessionsHandler extends JSONHandler {
             	builder = ContentProviderOperation.newUpdate(sessionUri);
             	builder.withValue(Sessions.NEW, false);
         		sessionUpdated = isSessionUpdated(sessionUri, session, resolver);
-    			if (!isLocalSync()) {
+    			if (isRemoteSync()) {
             		builder.withValue(Sessions.UPDATED, sessionUpdated);
             	}
             } else {
@@ -172,15 +172,19 @@ public class RemoteSessionsHandler extends JSONHandler {
 			    			.withValue(SessionsSpeakers.SESSION_ID, sessionId).build());
 		    	}
 		    	
-		    	HashSet<String> lostSpeakerIds = getLostIds(speakerIds, speakerSessionsUri, SpeakersQuery.PROJECTION, SpeakersQuery.SPEAKER_ID, resolver);
-	        	for (String lostSpeakerId : lostSpeakerIds) {
-	        		final Uri deleteUri = Sessions.buildSessionSpeakerUri(sessionId, lostSpeakerId);
-			    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
-	        	}
+		    	if (isRemoteSync()) {
+			    	HashSet<String> lostSpeakerIds = getLostIds(speakerIds, speakerSessionsUri, SpeakersQuery.PROJECTION, SpeakersQuery.SPEAKER_ID, resolver);
+		        	for (String lostSpeakerId : lostSpeakerIds) {
+		        		if (Integer.valueOf(lostSpeakerId) < 901) {
+			        		final Uri deleteUri = Sessions.buildSessionSpeakerUri(sessionId, lostSpeakerId);
+					    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
+		        		}
+		        	}
+		    	}
 		    }
         }
         
-        if (sessions.length() > 0) {
+        if (isRemoteSync() && sessions.length() > 0) {
         	HashSet<String> lostSessionIds = getLostIds(sessionIds, Sessions.CONTENT_URI, SessionsQuery.PROJECTION, SessionsQuery.SESSION_ID, resolver);
         	HashSet<String> lostTrackIds = getLostIds(trackIds, Tracks.CONTENT_URI, TracksQuery.PROJECTION, TracksQuery.TRACK_ID, resolver);
         	
@@ -191,10 +195,12 @@ public class RemoteSessionsHandler extends JSONHandler {
 		    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
         	}
         	for (String lostSessionId : lostSessionIds) {
-		    	Uri deleteUri = Sessions.buildSpeakersDirUri(lostSessionId);
-		    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
-		    	deleteUri = Sessions.buildSessionUri(lostSessionId);
-		    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
+        		if (Integer.valueOf(lostSessionId) < 901) {
+			    	Uri deleteUri = Sessions.buildSpeakersDirUri(lostSessionId);
+			    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
+			    	deleteUri = Sessions.buildSessionUri(lostSessionId);
+			    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
+        		}
         	}
         }
         

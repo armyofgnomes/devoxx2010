@@ -48,8 +48,8 @@ public class RemoteScheduleHandler extends JSONHandler {
 	
     private static final String TAG = "ScheduleHandler";
 
-    public RemoteScheduleHandler() {
-		super(ScheduleContract.CONTENT_AUTHORITY, false);
+    public RemoteScheduleHandler(int syncType) {
+		super(ScheduleContract.CONTENT_AUTHORITY, syncType);
 	}
 
 	@Override
@@ -65,8 +65,9 @@ public class RemoteScheduleHandler extends JSONHandler {
             
             final long startTime = ParserUtils.parseDevoxxTime(schedule.getString("fromTime"));
             final long endTime = ParserUtils.parseDevoxxTime(schedule.getString("toTime"));
+		    final String kind = schedule.getString("kind");
             
-            final String blockId = Blocks.generateBlockId(startTime, endTime);
+            final String blockId = Blocks.generateBlockId(kind, startTime, endTime);
             
             if (!blockBatchMap.containsKey(blockId)) {
                 final Uri blockUri = Blocks.buildBlockUri(blockId);
@@ -83,7 +84,6 @@ public class RemoteScheduleHandler extends JSONHandler {
 
     		    final String type = schedule.getString("type");
     		    final String code = schedule.getString("code");
-    		    final String kind = schedule.getString("kind");
     		    
     		    if (code.startsWith("D10")) {
     		    	builder.withValue(Blocks.BLOCK_TITLE, type.replaceAll("\\ \\(.*\\)", ""));
@@ -128,16 +128,20 @@ public class RemoteScheduleHandler extends JSONHandler {
         batch.addAll(blockBatchMap.values());
         batch.addAll(sessionUpdateBatchMap.values());
         
-        if (schedules.length() > 0) {
+        if (isRemoteSync() && schedules.length() > 0) {
 		    for (String lostId : getLostIds(blockBatchMap.keySet(), Blocks.CONTENT_URI, BlocksQuery.PROJECTION, BlocksQuery.BLOCK_ID, resolver)) {
-		    	final Uri lostBlockUri = Blocks.buildBlockUri(lostId);
-		    	batch.add(ContentProviderOperation.newDelete(lostBlockUri).build());
+		    	if (!lostId.startsWith("lab")) {
+		    		final Uri lostBlockUri = Blocks.buildBlockUri(lostId);
+			    	batch.add(ContentProviderOperation.newDelete(lostBlockUri).build());
+		    	}
 		    }
 		    for (String lostId : getLostIds(sessionUpdateBatchMap.keySet(), Sessions.CONTENT_URI, SessionsQuery.PROJECTION, SessionsQuery.SESSION_ID, resolver)) {
-		    	Uri deleteUri = Sessions.buildSpeakersDirUri(lostId);
-		    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
-		    	deleteUri = Sessions.buildSessionUri(lostId);
-		    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
+		    	if (Integer.valueOf(lostId) < 901) {
+			    	Uri deleteUri = Sessions.buildSpeakersDirUri(lostId);
+			    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
+			    	deleteUri = Sessions.buildSessionUri(lostId);
+			    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
+		    	}
 		    }
         }
 

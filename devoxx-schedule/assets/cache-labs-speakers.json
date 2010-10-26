@@ -1,0 +1,152 @@
+[
+	{
+		"id":901,
+		"lastName":"JetBrains",
+		"bio":"",
+		"company":"JetBrains",
+		"talks":[
+			{
+				"title":"Language-Oriented Programming in Action",
+				"event":"Labs (3h)",
+				"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/901"
+			}
+		],
+		"imageURI":"http://cfp.devoxx.com/img/thumbnail.gif",
+		"firstName":""
+	},
+	{
+		"id":902,
+		"lastName":"Wielenga",
+		"bio":"Geertjan Wielenga is a Principal Product Manager at Oracle and works for the NetBeans team, providing documentation & training relating to the NetBeans Platform. He is the co-author of several books and has a popular blog at http://blogs.sun.com/geertjan.",
+		"company":"Oracle",
+		"talks":[
+			{
+				"title":"Developing Substantial Java Desktop Applications",
+				"event":"Labs (3h)",
+				"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/902"
+			}
+		],
+		"imageURI":"http://cfp.devoxx.com/img/thumbnail.gif",
+		"firstName":"Geertjan"
+	},
+	{
+		"id":903,
+		"lastName":"Knutsen",
+		"bio":"Aslak Knutsen is currently a Senior Software Engineer for the JBoss Seam team at Red Hat, Inc. where he is the project lead for Arquillian and works on projects such as ShrinkWrap, Weld and Seam 3. Previously, Aslak was a Senior Consultant at Conduct AS (working with JBoss related technologies) and Senior Developer at EDB ASA (working with electronic billing/banking systems).",
+		"company":"Red Hat, Inc.",
+		"talks":[
+			{
+				"title":"Java enterprise testing made easy with Arquillian",
+				"event":"Labs (3h)",
+				"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/903"
+			}
+		],
+		"imageURI":"http://cfp.devoxx.com/img/thumbnail.gif",
+		"firstName":"Aslak"
+	},
+	{
+		"id":244,
+		"talks":[
+			{
+				"title":"Java enterprise testing made easy with Arquillian",
+				"event":"Labs (3h)",
+				"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/903"
+			}
+		]
+	},
+	{
+		"id":295,
+		"talks":[
+			{
+				"title":"Java enterprise testing made easy with Arquillian",
+				"event":"Labs (3h)",
+				"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/903"
+			}
+		]
+	},
+	{
+		"id":216,
+		"talks":[
+			{
+				"title":"Developing Enterprise OSGi applications",
+				"event":"Labs (3h)",
+				"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/904"
+			}
+		]
+	},
+	{
+		"id":904,
+		"lastName":"Slattery",
+		"bio":"",
+		"company":"IBM",
+		"talks":[
+			{
+				"title":"Developing Enterprise OSGi applications",
+				"event":"Labs (3h)",
+				"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/904"
+			}
+		],
+		"imageURI":"http://cfp.devoxx.com/img/thumbnail.gif",
+		"firstName":"Zoe"
+	},
+	{
+		"id":272,
+		"talks":[
+			{
+				"title":"Hands-On Scala",
+				"event":"Labs (3h)",
+				"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/905"
+			}
+		]
+	},
+	{
+		"id":273,
+		"talks":[
+			{
+				"title":"Hands-On Scala",
+				"event":"Labs (3h)",
+				"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/905"
+			}
+		]
+	},
+	{
+		"id":160,
+		"talks":[
+			{
+				"title":"RESTful development with Java",
+				"event":"Labs (3h)",
+				"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/906"
+			}
+		]
+	},
+	{
+		"id":331,
+		"talks":[
+			{
+				"title":"Develop your first Flex 4 application",
+				"event":"Labs (3h)",
+				"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/907"
+			}
+		]
+	},
+	{
+		"id":182,
+		"talks":[
+			{
+				"title":"Beginning with the Java EE 6 Platform",
+				"event":"Labs (3h)",
+				"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/908"
+			}
+		]
+	},
+	{
+		"id":116,
+		"talks":[
+			{
+				"title":"Beginning with the Java EE 6 Platform",
+				"event":"Labs (3h)",
+				"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/908"
+			}
+		]
+	}
+]

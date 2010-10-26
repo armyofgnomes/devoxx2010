@@ -48,8 +48,8 @@ public abstract class JSONHandler extends BaseHandler {
 	
 	private static final String TAG = "JSONHandler"; 
 	
-    public JSONHandler(String mAuthority, boolean localSync) {
-		super(mAuthority, localSync);
+    public JSONHandler(String mAuthority, int syncType) {
+		super(mAuthority, syncType);
 	}
 
 	/**

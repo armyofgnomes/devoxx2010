@@ -58,7 +58,6 @@ public class RemoteExecutor {
      */
     public String executeGet(String url, JSONHandler handler) throws JSONHandlerException {
         final HttpUriRequest request = new HttpGet(url);
-        handler.setLocalSync(false);
         final String md5 = SyncUtils.getRemoteMd5(mHttpClient, url);
         execute(request, handler);
         return md5;
@@ -87,7 +86,6 @@ public class RemoteExecutor {
             	}
                 String jsontext = sb.toString();
                 JSONArray entries = new JSONArray(jsontext);
-                handler.setLocalSync(false);
                 handler.parseAndApply(entries, mResolver);
             } catch (JSONException e) {
                 throw new JSONHandlerException("Malformed response for " + request.getRequestLine(), e);

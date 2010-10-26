@@ -57,8 +57,9 @@ public class ScheduleDatabase extends SQLiteOpenHelper {
     private static final int VER_ADD_NOTE_ON_SESSION = 2;
     private static final int VER_ALTER_NOTE_ON_SESSION = 3;
     private static final int VER_RECREATE_FULLTEXT_TABLE = 4;
+    private static final int VER_ADD_LABS_SESSIONS = 5;
 
-    private static final int DATABASE_VERSION = VER_RECREATE_FULLTEXT_TABLE;
+    private static final int DATABASE_VERSION = VER_ADD_LABS_SESSIONS;
 
     interface Tables {
         String SESSIONS = "sessions";
@@ -463,6 +464,87 @@ public class ScheduleDatabase extends SQLiteOpenHelper {
                 		+ " VALUES('flex')");
 
                 version = VER_RECREATE_FULLTEXT_TABLE;
+            case VER_RECREATE_FULLTEXT_TABLE:
+                db.execSQL("UPDATE " + Tables.SESSIONS
+                		+ " SET " + Sessions.BLOCK_ID + "=" 
+                		+ "'break-'||" + Sessions.BLOCK_ID
+                		+ " WHERE " + Sessions.BLOCK_ID + " IN " 
+                		+ "(SELECT " + Blocks.BLOCK_ID + " FROM "
+                		+ Tables.BLOCKS + " WHERE " 
+                		+ Blocks.BLOCK_TYPE + "='Break')");
+                db.execSQL("UPDATE " + Tables.SESSIONS
+                		+ " SET " + Sessions.BLOCK_ID + "=" 
+                		+ "'breakfast-'||" + Sessions.BLOCK_ID
+                		+ " WHERE " + Sessions.BLOCK_ID + " IN " 
+                		+ "(SELECT " + Blocks.BLOCK_ID + " FROM "
+                		+ Tables.BLOCKS + " WHERE " 
+                		+ Blocks.BLOCK_TYPE + "='Breakfast')");
+                db.execSQL("UPDATE " + Tables.SESSIONS
+                		+ " SET " + Sessions.BLOCK_ID + "=" 
+                		+ "'coffeebreak-'||" + Sessions.BLOCK_ID
+                		+ " WHERE " + Sessions.BLOCK_ID + " IN " 
+                		+ "(SELECT " + Blocks.BLOCK_ID + " FROM "
+                		+ Tables.BLOCKS + " WHERE " 
+                		+ Blocks.BLOCK_TYPE + "='Coffee Break')");
+                db.execSQL("UPDATE " + Tables.SESSIONS
+                		+ " SET " + Sessions.BLOCK_ID + "=" 
+                		+ "'keynote-'||" + Sessions.BLOCK_ID
+                		+ " WHERE " + Sessions.BLOCK_ID + " IN " 
+                		+ "(SELECT " + Blocks.BLOCK_ID + " FROM "
+                		+ Tables.BLOCKS + " WHERE " 
+                		+ Blocks.BLOCK_TYPE + "='Keynote')");
+                db.execSQL("UPDATE " + Tables.SESSIONS
+                		+ " SET " + Sessions.BLOCK_ID + "=" 
+                		+ "'lunch-'||" + Sessions.BLOCK_ID
+                		+ " WHERE " + Sessions.BLOCK_ID + " IN " 
+                		+ "(SELECT " + Blocks.BLOCK_ID + " FROM "
+                		+ Tables.BLOCKS + " WHERE " 
+                		+ Blocks.BLOCK_TYPE + "='Lunch')");
+                db.execSQL("UPDATE " + Tables.SESSIONS
+                		+ " SET " + Sessions.BLOCK_ID + "=" 
+                		+ "'registration-'||" + Sessions.BLOCK_ID
+                		+ " WHERE " + Sessions.BLOCK_ID + " IN " 
+                		+ "(SELECT " + Blocks.BLOCK_ID + " FROM "
+                		+ Tables.BLOCKS + " WHERE " 
+                		+ Blocks.BLOCK_TYPE + "='Registration')");
+                db.execSQL("UPDATE " + Tables.SESSIONS
+                		+ " SET " + Sessions.BLOCK_ID + "=" 
+                		+ "'talk-'||" + Sessions.BLOCK_ID
+                		+ " WHERE " + Sessions.BLOCK_ID + " IN " 
+                		+ "(SELECT " + Blocks.BLOCK_ID + " FROM "
+                		+ Tables.BLOCKS + " WHERE " 
+                		+ Blocks.BLOCK_TYPE + "='Talk')");
+
+                db.execSQL("UPDATE " + Tables.BLOCKS
+                		+ " SET " + Blocks.BLOCK_ID + "=" 
+                		+ "'break-'||" + Blocks.BLOCK_ID
+                		+ " WHERE " + Blocks.BLOCK_TYPE + "='Break'");
+                db.execSQL("UPDATE " + Tables.BLOCKS
+                		+ " SET " + Blocks.BLOCK_ID + "=" 
+                		+ "'breakfast-'||" + Blocks.BLOCK_ID
+                		+ " WHERE " + Blocks.BLOCK_TYPE + "='Breakfast'");
+                db.execSQL("UPDATE " + Tables.BLOCKS
+                		+ " SET " + Blocks.BLOCK_ID + "=" 
+                		+ "'coffeebreak-'||" + Blocks.BLOCK_ID
+                		+ " WHERE " + Blocks.BLOCK_TYPE + "='Coffee Break'");
+                db.execSQL("UPDATE " + Tables.BLOCKS
+                		+ " SET " + Blocks.BLOCK_ID + "=" 
+                		+ "'keynote-'||" + Blocks.BLOCK_ID
+                		+ " WHERE " + Blocks.BLOCK_TYPE + "='Keynote'");
+                db.execSQL("UPDATE " + Tables.BLOCKS
+                		+ " SET " + Blocks.BLOCK_ID + "=" 
+                		+ "'lunch-'||" + Blocks.BLOCK_ID
+                		+ " WHERE " + Blocks.BLOCK_TYPE + "='Lunch'");
+                db.execSQL("UPDATE " + Tables.BLOCKS
+                		+ " SET " + Blocks.BLOCK_ID + "=" 
+                		+ "'registration-'||" + Blocks.BLOCK_ID
+                		+ " WHERE " + Blocks.BLOCK_TYPE + "='Registration'");
+                db.execSQL("UPDATE " + Tables.BLOCKS
+                		+ " SET " + Blocks.BLOCK_ID + "=" 
+                		+ "'talk-'||" + Blocks.BLOCK_ID
+                		+ " WHERE " + Blocks.BLOCK_TYPE + "='Talk'");
+            	
+                version = VER_ADD_LABS_SESSIONS;
         }
 
         Log.d(TAG, "after upgrade logic, at version " + version);

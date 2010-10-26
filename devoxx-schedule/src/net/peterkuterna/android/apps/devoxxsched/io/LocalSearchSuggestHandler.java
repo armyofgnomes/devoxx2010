@@ -39,7 +39,7 @@ import android.content.ContentResolver;
 public class LocalSearchSuggestHandler extends XmlHandler {
 
     public LocalSearchSuggestHandler() {
-        super(ScheduleContract.CONTENT_AUTHORITY, true);
+        super(ScheduleContract.CONTENT_AUTHORITY, BaseHandler.LOCAL_SYNC);
     }
 
     @Override
