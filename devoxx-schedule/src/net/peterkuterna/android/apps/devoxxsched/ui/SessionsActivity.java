@@ -24,8 +24,6 @@ package net.peterkuterna.android.apps.devoxxsched.ui;
 import static net.peterkuterna.android.apps.devoxxsched.util.UIUtils.buildStyledSnippet;
 import static net.peterkuterna.android.apps.devoxxsched.util.UIUtils.formatSessionSubtitle;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import net.peterkuterna.android.apps.devoxxsched.R;
@@ -35,8 +33,8 @@ import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Sessi
 import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Tracks;
 import net.peterkuterna.android.apps.devoxxsched.util.Lists;
 import net.peterkuterna.android.apps.devoxxsched.util.NotifyingAsyncQueryHandler;
-import net.peterkuterna.android.apps.devoxxsched.util.UIUtils;
 import net.peterkuterna.android.apps.devoxxsched.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
+import net.peterkuterna.android.apps.devoxxsched.util.UIUtils;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
@@ -51,7 +49,6 @@ import android.provider.BaseColumns;
 import android.text.Spannable;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
 import android.widget.CheckBox;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
@@ -78,7 +75,7 @@ public class SessionsActivity extends ListActivity implements AsyncQueryListener
     
     private int mTrackColor= -1;
     
-    private final Reflect reflect = new Reflect();
+//    private final Reflect reflect = new Reflect();
 
     private static final String SESSIONS_SORT = Sessions.BLOCK_START + " ASC," + Rooms.NAME + " ASC";
 
@@ -128,45 +125,46 @@ public class SessionsActivity extends ListActivity implements AsyncQueryListener
 
     /** {@inheritDoc} */
     public void onQueryComplete(int token, Object cookie, Cursor cursor) {
-    	int scrollPos = -1;
+    	// TODO implement scrolling correctly
+//    	int scrollPos = -1;
     	if (mNoWeekdayHeader) {
     		startManagingCursor(cursor);
-    		scrollPos = getScrollPosition(cursor);
+//    		scrollPos = getScrollPosition(cursor);
     		mAdapter.changeCursor(cursor);
     	} else {
 	    	final SessionsCursorWrapper cursorWrapper = new SessionsCursorWrapper(cursor, this);
 	        startManagingCursor(cursorWrapper);
-    		scrollPos = getScrollPosition(cursorWrapper);
+//    		scrollPos = getScrollPosition(cursorWrapper);
 	        mAdapter.changeCursor(cursorWrapper);
     	}
-    	if (scrollPos != -1) reflect.scrollTo(getListView(), scrollPos, scrollPos);
+//    	if (scrollPos != -1) reflect.scrollTo(getListView(), scrollPos, scrollPos);
     }
     
-    private int getScrollPosition(Cursor cursor) {
-    	int scrollPos = -1;
-    	
-    	final long currentTime = System.currentTimeMillis();
-    	
-        if (currentTime > UIUtils.CONFERENCE_START_MILLIS &&
-        		currentTime < UIUtils.CONFERENCE_END_MILLIS) {
-	    	for (int i = 0; i < cursor.getCount(); i++) {
-	    		if (cursor instanceof SessionsCursorWrapper) {
-	    			final SessionsCursorWrapper cursorWrapper = (SessionsCursorWrapper) cursor;
-	    			if (cursorWrapper.getItemViewType(i) != 0) continue;
-	    		}
-	    		cursor.moveToPosition(i);
-	    		long blockEnd = cursor.getLong(SessionsQuery.BLOCK_END);
-	    		if (currentTime < blockEnd) {
-	    			scrollPos = i;
-	    			break;
-	    		}
-	    	}
-	    	
-	    	if ((cursor instanceof SessionsCursorWrapper) && (scrollPos == 1)) scrollPos = 0;
-        }
-    	
-    	return scrollPos;
-    }
+//    private int getScrollPosition(Cursor cursor) {
+//    	int scrollPos = -1;
+//    	
+//    	final long currentTime = System.currentTimeMillis();
+//    	
+//        if (currentTime > UIUtils.CONFERENCE_START_MILLIS &&
+//        		currentTime < UIUtils.CONFERENCE_END_MILLIS) {
+//	    	for (int i = 0; i < cursor.getCount(); i++) {
+//	    		if (cursor instanceof SessionsCursorWrapper) {
+//	    			final SessionsCursorWrapper cursorWrapper = (SessionsCursorWrapper) cursor;
+//	    			if (cursorWrapper.getItemViewType(i) != 0) continue;
+//	    		}
+//	    		cursor.moveToPosition(i);
+//	    		long blockEnd = cursor.getLong(SessionsQuery.BLOCK_END);
+//	    		if (currentTime < blockEnd) {
+//	    			scrollPos = i;
+//	    			break;
+//	    		}
+//	    	}
+//	    	
+//	    	if ((cursor instanceof SessionsCursorWrapper) && (scrollPos == 1)) scrollPos = 0;
+//        }
+//    	
+//    	return scrollPos;
+//    }
 
     @Override
     protected void onResume() {
@@ -561,43 +559,43 @@ public class SessionsActivity extends ListActivity implements AsyncQueryListener
      
     }
     
-    /**
-     * Reflection class to use the smooth scrolling when available (Android2.2+)
-     */
-    public static class Reflect {
-
-		private static Method mListView_smoothScrollToPosition;
-
-		static {
-			initCompatibility();
-		};
-
-		private static void initCompatibility() {
-			try {
-				mListView_smoothScrollToPosition = AbsListView.class
-						.getMethod("smoothScrollToPosition",
-								new Class[] { int.class, int.class });
-			} catch (NoSuchMethodException nsme) {
-			}
-		}
-
-		private static void smoothScrollToPosition(AbsListView listView, int position, int boundPosition) {
-			try {
-				mListView_smoothScrollToPosition.invoke(listView, position, boundPosition);
-			} catch (InvocationTargetException ite) {
-				System.err.println("unexpected " + ite);
-			} catch (IllegalAccessException ie) {
-				System.err.println("unexpected " + ie);
-			}
-		}
-
-		public void scrollTo(ListView listView, int position, int boundPosition) {
-			if (mListView_smoothScrollToPosition != null) {
-				smoothScrollToPosition(listView, position, boundPosition);
-			} else {
-				listView.setSelection(position);
-			}
-		}
-	}
+//    /**
+//     * Reflection class to use the smooth scrolling when available (Android2.2+)
+//     */
+//    public static class Reflect {
+//
+//		private static Method mListView_smoothScrollToPosition;
+//
+//		static {
+//			initCompatibility();
+//		};
+//
+//		private static void initCompatibility() {
+//			try {
+//				mListView_smoothScrollToPosition = AbsListView.class
+//						.getMethod("smoothScrollToPosition",
+//								new Class[] { int.class, int.class });
+//			} catch (NoSuchMethodException nsme) {
+//			}
+//		}
+//
+//		private static void smoothScrollToPosition(AbsListView listView, int position, int boundPosition) {
+//			try {
+//				mListView_smoothScrollToPosition.invoke(listView, position, boundPosition);
+//			} catch (InvocationTargetException ite) {
+//				System.err.println("unexpected " + ite);
+//			} catch (IllegalAccessException ie) {
+//				System.err.println("unexpected " + ie);
+//			}
+//		}
+//
+//		public void scrollTo(ListView listView, int position, int boundPosition) {
+//			if (mListView_smoothScrollToPosition != null) {
+//				smoothScrollToPosition(listView, position, boundPosition);
+//			} else {
+//				listView.setSelection(position);
+//			}
+//		}
+//	}
     
 }
