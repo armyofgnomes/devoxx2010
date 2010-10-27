@@ -367,7 +367,7 @@ public class HomeActivity extends Activity implements AsyncQueryListener, Receiv
             case SyncService.STATUS_FINISHED: {
                 mState.mSyncing = false;
                 updateRefreshStatus();
-                reloadNowPlaying(true);
+                reloadNowPlaying(mState.mNowPlayingUri == null);
                 break;
             }
             case SyncService.STATUS_ERROR: {
