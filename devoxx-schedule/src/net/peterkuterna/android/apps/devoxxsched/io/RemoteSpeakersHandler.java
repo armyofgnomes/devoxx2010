@@ -44,59 +44,61 @@ public class RemoteSpeakersHandler extends JSONHandler {
 
     private static final String TAG = "SpeakersHandler";
 
-    public RemoteSpeakersHandler(int syncType) {
-		super(ScheduleContract.CONTENT_AUTHORITY, syncType);
+    public RemoteSpeakersHandler() {
+		super(ScheduleContract.CONTENT_AUTHORITY);
 	}
 
 	@Override
-	public ArrayList<ContentProviderOperation> parse(JSONArray speakers,
+	public ArrayList<ContentProviderOperation> parse(ArrayList<JSONArray> entries,
 			ContentResolver resolver) throws JSONException {
 		final ArrayList<ContentProviderOperation> batch = Lists.newArrayList();
 		final HashSet<String> speakerIds = new HashSet<String>();
 		
-		Log.d(TAG, "Retrieved " + speakers.length() + " speaker entries.");
-
-        for (int i=0; i < speakers.length(); i++) {
-            JSONObject speaker = speakers.getJSONObject(i);
-            String id = speaker.getString("id");
-            
-            final String speakerId = sanitizeId(id);
-            final Uri speakerUri = Speakers.buildSpeakerUri(speakerId);
-            speakerIds.add(speakerId);
-            
-            boolean speakerUpdated = false;
-            boolean newSpeaker = false;
-            boolean build = false;
-            ContentProviderOperation.Builder builder;
-            if (isRowExisting(Speakers.buildSpeakerUri(speakerId), SpeakersQuery.PROJECTION, resolver)) {
-            	builder = ContentProviderOperation.newUpdate(speakerUri);
-            	speakerUpdated = isSpeakerUpdated(speakerUri, speaker, resolver);
-            } else {
-            	newSpeaker = true;
-	            builder = ContentProviderOperation.newInsert(Speakers.CONTENT_URI);
-			    builder.withValue(Speakers.SPEAKER_ID, speakerId);
-			    build = true;
-            }
-            
-            if (newSpeaker || speakerUpdated) {
-			    builder.withValue(Speakers.FIRST_NAME, speaker.getString("firstName"));
-			    builder.withValue(Speakers.LAST_NAME, speaker.getString("lastName"));
-			    builder.withValue(Speakers.BIO, speaker.getString("bio"));
-			    builder.withValue(Speakers.COMPANY, speaker.getString("company"));
-			    builder.withValue(Speakers.IMAGE_URL, speaker.getString("imageURI"));
-			    build = true;
-            }
-            if (build) batch.add(builder.build());
-        }
+		int nrEntries = 0;
+		for (JSONArray speakers : entries) {
+			Log.d(TAG, "Retrieved " + speakers.length() + " speaker entries.");
+			nrEntries += speakers.length();
+	
+	        for (int i=0; i < speakers.length(); i++) {
+	            JSONObject speaker = speakers.getJSONObject(i);
+	            String id = speaker.getString("id");
+	            
+	            final String speakerId = sanitizeId(id);
+	            final Uri speakerUri = Speakers.buildSpeakerUri(speakerId);
+	            speakerIds.add(speakerId);
+	            
+	            boolean speakerUpdated = false;
+	            boolean newSpeaker = false;
+	            boolean build = false;
+	            ContentProviderOperation.Builder builder;
+	            if (isRowExisting(Speakers.buildSpeakerUri(speakerId), SpeakersQuery.PROJECTION, resolver)) {
+	            	builder = ContentProviderOperation.newUpdate(speakerUri);
+	            	speakerUpdated = isSpeakerUpdated(speakerUri, speaker, resolver);
+	            } else {
+	            	newSpeaker = true;
+		            builder = ContentProviderOperation.newInsert(Speakers.CONTENT_URI);
+				    builder.withValue(Speakers.SPEAKER_ID, speakerId);
+				    build = true;
+	            }
+	            
+	            if (newSpeaker || speakerUpdated) {
+				    builder.withValue(Speakers.FIRST_NAME, speaker.getString("firstName"));
+				    builder.withValue(Speakers.LAST_NAME, speaker.getString("lastName"));
+				    builder.withValue(Speakers.BIO, speaker.getString("bio"));
+				    builder.withValue(Speakers.COMPANY, speaker.getString("company"));
+				    builder.withValue(Speakers.IMAGE_URL, speaker.getString("imageURI"));
+				    build = true;
+	            }
+	            if (build) batch.add(builder.build());
+	        }
+		}
         
-        if (isRemoteSync() && speakers.length() > 0) {
+        if (isRemoteSync() && nrEntries > 0) {
 		    for (String lostId : getLostIds(speakerIds, Speakers.CONTENT_URI, SpeakersQuery.PROJECTION, SpeakersQuery.SPEAKER_ID, resolver)) {
-		    	if (Integer.valueOf(lostId) < 901) {
-			    	Uri deleteUri = Speakers.buildSessionsDirUri(lostId);
-			    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
-			    	deleteUri = Speakers.buildSpeakerUri(lostId);
-			    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
-		    	}
+		    	Uri deleteUri = Speakers.buildSessionsDirUri(lostId);
+		    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
+		    	deleteUri = Speakers.buildSpeakerUri(lostId);
+		    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
 		    }
         }
 

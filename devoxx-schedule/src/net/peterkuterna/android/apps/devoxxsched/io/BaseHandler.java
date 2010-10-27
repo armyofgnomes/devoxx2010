@@ -18,31 +18,28 @@ package net.peterkuterna.android.apps.devoxxsched.io;
 
 public abstract class BaseHandler {
 
-	public static final int LOCAL_SYNC = 0;
-	public static final int LOCAL_LAB_SYNC = 1;
-	public static final int REMOTE_SYNC = 2;
-	
     private final String mAuthority;
-	private final int mSyncType;
+	private boolean localSync;
 	
-	public BaseHandler(String authority, int syncType) {
+	public BaseHandler(String authority) {
 		this.mAuthority = authority;
-		this.mSyncType = syncType;
+		this.localSync = false;
 	}
 
 	public String getAuthority() {
 		return mAuthority;
 	}
-
+	
 	public boolean isLocalSync() {
-		return mSyncType == LOCAL_SYNC;
+		return localSync;
 	}
-	
-	public boolean isLocalLabSync() {
-		return mSyncType == LOCAL_LAB_SYNC;
-	}
-	
+
 	public boolean isRemoteSync() {
-		return mSyncType == REMOTE_SYNC;
+		return !localSync;
 	}
+
+	public void setLocalSync(boolean localSync) {
+		this.localSync = localSync;
+	}
+	
 }

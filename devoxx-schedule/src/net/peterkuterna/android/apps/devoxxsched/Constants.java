@@ -29,5 +29,11 @@ public class Constants {
 	public static final String MYSCHEDULE_ACTIVATE_URL = REST_BASE_URL + "events/users/activate";
 	public static final String MYSCHEDULE_PUBLISH_URL = REST_BASE_URL + "events/users/publish";
 	public static final String MYSCHEDULE_EMAIL_URL = REST_BASE_URL + "events/users/email";
+	
+	public static final String LABS_BASE_URL = "http://devoxx2010.appspot.com/labs/";
+	public static final String LABS_PRESENTATIONS_URL = LABS_BASE_URL + "cache-labs-presentations.json";
+	public static final String LABS_SPEAKERS_URL = LABS_BASE_URL + "cache-labs-speakers.json";
+	public static final String LABS_SCHEDULE_URL = LABS_BASE_URL + "cache-labs-schedule.json";
+
 
 }

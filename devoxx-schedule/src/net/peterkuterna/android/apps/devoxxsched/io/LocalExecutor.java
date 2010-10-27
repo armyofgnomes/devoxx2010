@@ -22,9 +22,11 @@ package net.peterkuterna.android.apps.devoxxsched.io;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import net.peterkuterna.android.apps.devoxxsched.io.JSONHandler.JSONHandlerException;
 import net.peterkuterna.android.apps.devoxxsched.io.XmlHandler.XmlHandlerException;
+import net.peterkuterna.android.apps.devoxxsched.util.Lists;
 import net.peterkuterna.android.apps.devoxxsched.util.ParserUtils;
 
 import org.json.JSONArray;
@@ -50,6 +52,7 @@ public class LocalExecutor {
     public void execute(int resId, XmlHandler handler) throws XmlHandlerException {
         final XmlResourceParser parser = mRes.getXml(resId);
         try {
+        	handler.setLocalSync(true);
             handler.parseAndApply(parser, mResolver);
         } finally {
             parser.close();
@@ -60,6 +63,7 @@ public class LocalExecutor {
 		try {
 		    final InputStream input = context.getAssets().open(assetName);
 		    final XmlPullParser parser = ParserUtils.newPullParser(input);
+        	handler.setLocalSync(true);
 		    handler.parseAndApply(parser, mResolver);
 		} catch (XmlHandlerException e) {
 		    throw e;
@@ -77,7 +81,9 @@ public class LocalExecutor {
             byte [] buffer = new byte[input.available()];
             while (input.read(buffer) != -1);
             String jsontext = new String(buffer);
-            JSONArray entries = new JSONArray(jsontext);
+            ArrayList<JSONArray> entries = Lists.newArrayList();
+            entries.add(new JSONArray(jsontext));
+        	handler.setLocalSync(true);
             handler.parseAndApply(entries, mResolver);
         } catch (JSONHandlerException e) {
             throw e;

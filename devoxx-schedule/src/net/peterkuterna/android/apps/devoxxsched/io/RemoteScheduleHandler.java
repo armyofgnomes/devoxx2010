@@ -48,87 +48,91 @@ public class RemoteScheduleHandler extends JSONHandler {
 	
     private static final String TAG = "ScheduleHandler";
 
-    public RemoteScheduleHandler(int syncType) {
-		super(ScheduleContract.CONTENT_AUTHORITY, syncType);
+    public RemoteScheduleHandler() {
+		super(ScheduleContract.CONTENT_AUTHORITY);
 	}
 
 	@Override
-	public ArrayList<ContentProviderOperation> parse(JSONArray schedules, ContentResolver resolver) throws JSONException {
+	public ArrayList<ContentProviderOperation> parse(ArrayList<JSONArray> entries, ContentResolver resolver) throws JSONException {
 		final ArrayList<ContentProviderOperation> batch = Lists.newArrayList();
 		final HashMap<String, ContentProviderOperation> blockBatchMap = Maps.newHashMap();
 		final HashMap<String, ContentProviderOperation> sessionUpdateBatchMap = Maps.newHashMap();
 		
-		Log.d(TAG, "Retrieved " + schedules.length() + " schedule entries.");
-
-        for (int i=0; i<schedules.length(); i++) {
-            JSONObject schedule = schedules.getJSONObject(i);
-            
-            final long startTime = ParserUtils.parseDevoxxTime(schedule.getString("fromTime"));
-            final long endTime = ParserUtils.parseDevoxxTime(schedule.getString("toTime"));
-		    final String kind = schedule.getString("kind");
-            
-            final String blockId = Blocks.generateBlockId(kind, startTime, endTime);
-            
-            if (!blockBatchMap.containsKey(blockId)) {
-                final Uri blockUri = Blocks.buildBlockUri(blockId);
-                
-                ContentProviderOperation.Builder builder;
-                if (isRowExisting(Blocks.buildBlockUri(blockId), BlocksQuery.PROJECTION, resolver)) {
-                	builder = ContentProviderOperation.newUpdate(blockUri);
-                } else {
-    	            builder = ContentProviderOperation.newInsert(Blocks.CONTENT_URI);
-    	            builder.withValue(Blocks.BLOCK_ID, blockId);
-                }
-    		    builder.withValue(Blocks.BLOCK_START, startTime);
-    		    builder.withValue(Blocks.BLOCK_END, endTime);
-
-    		    final String type = schedule.getString("type");
-    		    final String code = schedule.getString("code");
-    		    
-    		    if (code.startsWith("D10")) {
-    		    	builder.withValue(Blocks.BLOCK_TITLE, type.replaceAll("\\ \\(.*\\)", ""));
-    		    } else {
-    		    	builder.withValue(Blocks.BLOCK_TITLE, schedule.getString("code"));
-    		    }
-
-    		    builder.withValue(Blocks.BLOCK_TYPE, kind);
-    		    blockBatchMap.put(blockId, builder.build());
-            }
-            
-            if (schedule.has("presentationUri")) {
-            	final Uri presentationUri = Uri.parse(schedule.getString("presentationUri"));
-            	final String sessionId = presentationUri.getLastPathSegment();
-            	final Uri sessionUri = Sessions.buildSessionUri(sessionId);
-            	
-            	if (isRowExisting(sessionUri, SessionsQuery.PROJECTION, resolver)) {
-	            	String roomId = null;
-	                if (schedule.has("room")) {
-	                	final String roomName = schedule.getString("room");
-	                	Cursor cursor = resolver.query(Rooms.buildRoomsWithNameUri(roomName), RoomsQuery.PROJECTION, null, null, null);
-	                	if (cursor.moveToNext()) {
-	                		roomId = cursor.getString(RoomsQuery.ROOM_ID);
-	                	}
-	                	cursor.close();
+		int nrEntries = 0;
+		for (JSONArray schedules : entries) {
+			Log.d(TAG, "Retrieved " + schedules.length() + " schedule entries.");
+			nrEntries += schedules.length();
+	
+	        for (int i=0; i<schedules.length(); i++) {
+	            JSONObject schedule = schedules.getJSONObject(i);
+	            
+	            final long startTime = ParserUtils.parseDevoxxTime(schedule.getString("fromTime"));
+	            final long endTime = ParserUtils.parseDevoxxTime(schedule.getString("toTime"));
+			    final String kind = schedule.getString("kind");
+	            
+	            final String blockId = Blocks.generateBlockId(kind, startTime, endTime);
+	            
+	            if (!blockBatchMap.containsKey(blockId)) {
+	                final Uri blockUri = Blocks.buildBlockUri(blockId);
+	                
+	                ContentProviderOperation.Builder builder;
+	                if (isRowExisting(Blocks.buildBlockUri(blockId), BlocksQuery.PROJECTION, resolver)) {
+	                	builder = ContentProviderOperation.newUpdate(blockUri);
+	                } else {
+	    	            builder = ContentProviderOperation.newInsert(Blocks.CONTENT_URI);
+	    	            builder.withValue(Blocks.BLOCK_ID, blockId);
 	                }
-	            	final ContentProviderOperation.Builder builder = ContentProviderOperation.newUpdate(sessionUri);
-	            	builder.withValue(Sessions.BLOCK_ID, blockId);
-	            	builder.withValue(Sessions.ROOM_ID, roomId);
-	            	if (schedule.has("note")) {
-	            		final String note = schedule.getString("note");
-	            		if (note != null && note.trim().length() > 0) {
-	            			builder.withValue(Sessions.NOTE, note.trim());
-	            		}
-	            	}
+	    		    builder.withValue(Blocks.BLOCK_START, startTime);
+	    		    builder.withValue(Blocks.BLOCK_END, endTime);
+	
+	    		    final String type = schedule.getString("type");
+	    		    final String code = schedule.getString("code");
+	    		    
+	    		    if (code.startsWith("D10")) {
+	    		    	builder.withValue(Blocks.BLOCK_TITLE, type.replaceAll("\\ \\(.*\\)", ""));
+	    		    } else {
+	    		    	builder.withValue(Blocks.BLOCK_TITLE, schedule.getString("code"));
+	    		    }
+	
+	    		    builder.withValue(Blocks.BLOCK_TYPE, kind);
+	    		    blockBatchMap.put(blockId, builder.build());
+	            }
+	            
+	            if (schedule.has("presentationUri")) {
+	            	final Uri presentationUri = Uri.parse(schedule.getString("presentationUri"));
+	            	final String sessionId = presentationUri.getLastPathSegment();
+	            	final Uri sessionUri = Sessions.buildSessionUri(sessionId);
 	            	
-	            	sessionUpdateBatchMap.put(sessionId, builder.build());
-            	}
-            }
-        }
+	            	if (isRowExisting(sessionUri, SessionsQuery.PROJECTION, resolver)) {
+		            	String roomId = null;
+		                if (schedule.has("room")) {
+		                	final String roomName = schedule.getString("room");
+		                	Cursor cursor = resolver.query(Rooms.buildRoomsWithNameUri(roomName), RoomsQuery.PROJECTION, null, null, null);
+		                	if (cursor.moveToNext()) {
+		                		roomId = cursor.getString(RoomsQuery.ROOM_ID);
+		                	}
+		                	cursor.close();
+		                }
+		            	final ContentProviderOperation.Builder builder = ContentProviderOperation.newUpdate(sessionUri);
+		            	builder.withValue(Sessions.BLOCK_ID, blockId);
+		            	builder.withValue(Sessions.ROOM_ID, roomId);
+		            	if (schedule.has("note")) {
+		            		final String note = schedule.getString("note");
+		            		if (note != null && note.trim().length() > 0) {
+		            			builder.withValue(Sessions.NOTE, note.trim());
+		            		}
+		            	}
+		            	
+		            	sessionUpdateBatchMap.put(sessionId, builder.build());
+	            	}
+	            }
+	        }
+		}
         
         batch.addAll(blockBatchMap.values());
         batch.addAll(sessionUpdateBatchMap.values());
-        
-        if (isRemoteSync() && schedules.length() > 0) {
+
+        if (isRemoteSync() && nrEntries > 0) {
 		    for (String lostId : getLostIds(blockBatchMap.keySet(), Blocks.CONTENT_URI, BlocksQuery.PROJECTION, BlocksQuery.BLOCK_ID, resolver)) {
 		    	if (!lostId.startsWith("lab")) {
 		    		final Uri lostBlockUri = Blocks.buildBlockUri(lostId);
@@ -136,12 +140,10 @@ public class RemoteScheduleHandler extends JSONHandler {
 		    	}
 		    }
 		    for (String lostId : getLostIds(sessionUpdateBatchMap.keySet(), Sessions.CONTENT_URI, SessionsQuery.PROJECTION, SessionsQuery.SESSION_ID, resolver)) {
-		    	if (Integer.valueOf(lostId) < 901) {
-			    	Uri deleteUri = Sessions.buildSpeakersDirUri(lostId);
-			    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
-			    	deleteUri = Sessions.buildSessionUri(lostId);
-			    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
-		    	}
+		    	Uri deleteUri = Sessions.buildSpeakersDirUri(lostId);
+		    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
+		    	deleteUri = Sessions.buildSessionUri(lostId);
+		    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
 		    }
         }
 

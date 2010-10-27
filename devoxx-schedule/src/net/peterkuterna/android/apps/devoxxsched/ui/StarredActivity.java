@@ -370,7 +370,14 @@ public class StarredActivity extends TabActivity implements AsyncQueryListener {
             final ArrayList<String> sessionIds = Lists.newArrayList();
             try {
             	while (cursor.moveToNext()) {
-            		sessionIds.add(cursor.getString(SessionsQuery.SESSION_ID));
+            		final String sessionId = cursor.getString(SessionsQuery.SESSION_ID);
+            		try {
+	            		if (Integer.valueOf(sessionId) < 901) {
+	            			sessionIds.add(sessionId);
+	            		}
+            		} catch (NumberFormatException e) {
+            			// just eat the exception and continue
+            		}
             	}
             } finally {
                 cursor.close();

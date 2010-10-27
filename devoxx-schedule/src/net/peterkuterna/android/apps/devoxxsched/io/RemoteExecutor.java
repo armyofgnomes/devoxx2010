@@ -24,8 +24,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 import net.peterkuterna.android.apps.devoxxsched.io.JSONHandler.JSONHandlerException;
+import net.peterkuterna.android.apps.devoxxsched.model.RequestHash;
+import net.peterkuterna.android.apps.devoxxsched.util.Lists;
 import net.peterkuterna.android.apps.devoxxsched.util.SyncUtils;
 
 import org.apache.http.HttpResponse;
@@ -56,18 +59,26 @@ public class RemoteExecutor {
      * Execute a {@link HttpGet} request, passing a valid response through
      * {@link JSONHandler#parseAndApply(JSONArray, ContentResolver)}.
      */
-    public String executeGet(String url, JSONHandler handler) throws JSONHandlerException {
-        final HttpUriRequest request = new HttpGet(url);
-        final String md5 = SyncUtils.getRemoteMd5(mHttpClient, url);
-        execute(request, handler);
-        return md5;
+    public ArrayList<RequestHash> executeGet(String [] urls, JSONHandler handler) throws JSONHandlerException {
+    	final ArrayList<RequestHash> result = Lists.newArrayList();
+    	final ArrayList<JSONArray> entries = Lists.newArrayList();
+    	for (String url : urls) {
+            final HttpUriRequest request = new HttpGet(url);
+            final String md5 = SyncUtils.getRemoteMd5(mHttpClient, url);
+            JSONArray requestEntries = executeRequest(request);
+            entries.add(requestEntries);
+            result.add(new RequestHash(url, md5));
+    	}
+    	handler.setLocalSync(false);
+		handler.parseAndApply(entries, mResolver);
+    	return result;
     }
 
     /**
      * Execute this {@link HttpUriRequest}, passing a valid response through
      * {@link JSONHandler#parseAndApply(JSONArray, ContentResolver)}.
      */
-    public void execute(HttpUriRequest request, JSONHandler handler) throws JSONHandlerException {
+    public JSONArray executeRequest(HttpUriRequest request) throws JSONHandlerException {
         try {
             final HttpResponse resp = mHttpClient.execute(request);
             final int status = resp.getStatusLine().getStatusCode();
@@ -85,8 +96,7 @@ public class RemoteExecutor {
             		sb.append(line);
             	}
                 String jsontext = sb.toString();
-                JSONArray entries = new JSONArray(jsontext);
-                handler.parseAndApply(entries, mResolver);
+                return new JSONArray(jsontext);
             } catch (JSONException e) {
                 throw new JSONHandlerException("Malformed response for " + request.getRequestLine(), e);
             } finally {

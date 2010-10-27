@@ -19,7 +19,9 @@ package net.peterkuterna.android.apps.devoxxsched.io;
 import static net.peterkuterna.android.apps.devoxxsched.util.ParserUtils.sanitizeId;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map.Entry;
 
 import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract;
 import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Sessions;
@@ -27,6 +29,7 @@ import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Speak
 import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Tracks;
 import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleDatabase.SessionsSpeakers;
 import net.peterkuterna.android.apps.devoxxsched.util.Lists;
+import net.peterkuterna.android.apps.devoxxsched.util.Maps;
 import net.peterkuterna.android.apps.devoxxsched.util.Sets;
 
 import org.json.JSONArray;
@@ -68,126 +71,133 @@ public class RemoteSessionsHandler extends JSONHandler {
     private static final String COLOR_OTHER = "#FFBF0000";
     private static final String COLOR_DEFAULT = "#FF272526";
     
-    public RemoteSessionsHandler(int syncType) {
-		super(ScheduleContract.CONTENT_AUTHORITY, syncType);
+    public RemoteSessionsHandler() {
+		super(ScheduleContract.CONTENT_AUTHORITY);
 	}
 
 	@Override
-	public ArrayList<ContentProviderOperation> parse(JSONArray sessions, ContentResolver resolver) throws JSONException {
+	public ArrayList<ContentProviderOperation> parse(ArrayList<JSONArray> entries, ContentResolver resolver) throws JSONException {
 		final ArrayList<ContentProviderOperation> batch = Lists.newArrayList();
 		final HashSet<String> sessionIds = Sets.newHashSet();
 		final HashSet<String> trackIds = Sets.newHashSet();
+		final HashMap<String, HashSet<String>> sessionSpeakerIds = Maps.newHashMap();
 		
-		Log.d(TAG, "Retrieved " + sessions.length() + " presentation entries.");
-
-        for (int i=0; i < sessions.length(); i++) {
-            JSONObject session = sessions.getJSONObject(i);
-            String id = session.getString("id");
-            
-            final String sessionId = sanitizeId(id);
-            final Uri sessionUri = Sessions.buildSessionUri(sessionId);
-            sessionIds.add(sessionId);
-            int isStarred = isStarred(sessionUri, resolver);
-
-            boolean sessionUpdated = false;
-            boolean newSession = false;
-            ContentProviderOperation.Builder builder;
-            if (isRowExisting(sessionUri, SessionsQuery.PROJECTION, resolver)) {
-            	builder = ContentProviderOperation.newUpdate(sessionUri);
-            	builder.withValue(Sessions.NEW, false);
-        		sessionUpdated = isSessionUpdated(sessionUri, session, resolver);
-    			if (isRemoteSync()) {
-            		builder.withValue(Sessions.UPDATED, sessionUpdated);
-            	}
-            } else {
-            	newSession = true;
-	            builder = ContentProviderOperation.newInsert(Sessions.CONTENT_URI);
-	            builder.withValue(Sessions.SESSION_ID, sessionId);
-	            if (!isLocalSync()) {
-	            	builder.withValue(Sessions.NEW, true);
-	            }
-            }
-            
-            if (newSession || sessionUpdated) {
-			    builder.withValue(Sessions.TITLE, session.getString("title"));
-			    builder.withValue(Sessions.EXPERIENCE, session.getString("experience"));
-			    builder.withValue(Sessions.TYPE, session.getString("type"));
-			    builder.withValue(Sessions.SUMMARY, session.getString("summary"));
-			    builder.withValue(Sessions.STARRED, isStarred);
-            }
-		    
-        	batch.add(builder.build());
-		    
-		    if (session.has("track")) {
-		    	final String trackName = session.getString("track");
-		    	final String trackId = Tracks.generateTrackId(trackName);
-		    	final Uri trackUri = Tracks.buildTrackUri(trackId);
-
-			    if (!trackIds.contains(trackId)) {
-			    	trackIds.add(trackId);
-			    	
-		            ContentProviderOperation.Builder trackBuilder;
-		            if (isRowExisting(Tracks.buildTrackUri(trackId), TracksQuery.PROJECTION, resolver)) {
-		            	trackBuilder = ContentProviderOperation.newUpdate(trackUri);
-		            } else {
-		            	trackBuilder = ContentProviderOperation.newInsert(Tracks.CONTENT_URI);
-		            	trackBuilder.withValue(Tracks.TRACK_ID, trackId);
+		int nrEntries = 0;
+		for (JSONArray sessions : entries) {
+			Log.d(TAG, "Retrieved " + sessions.length() + " presentation entries.");
+			nrEntries += sessions.length();
+	
+	        for (int i=0; i < sessions.length(); i++) {
+	            JSONObject session = sessions.getJSONObject(i);
+	            String id = session.getString("id");
+	            
+	            final String sessionId = sanitizeId(id);
+	            final Uri sessionUri = Sessions.buildSessionUri(sessionId);
+	            sessionIds.add(sessionId);
+	            int isStarred = isStarred(sessionUri, resolver);
+	
+	            boolean sessionUpdated = false;
+	            boolean newSession = false;
+	            ContentProviderOperation.Builder builder;
+	            if (isRowExisting(sessionUri, SessionsQuery.PROJECTION, resolver)) {
+	            	builder = ContentProviderOperation.newUpdate(sessionUri);
+	            	builder.withValue(Sessions.NEW, false);
+	        		sessionUpdated = isSessionUpdated(sessionUri, session, resolver);
+	    			if (isRemoteSync()) {
+	            		builder.withValue(Sessions.UPDATED, sessionUpdated);
+	            	}
+	            } else {
+	            	newSession = true;
+		            builder = ContentProviderOperation.newInsert(Sessions.CONTENT_URI);
+		            builder.withValue(Sessions.SESSION_ID, sessionId);
+		            if (!isLocalSync()) {
+		            	builder.withValue(Sessions.NEW, true);
 		            }
-
-	                trackBuilder.withValue(Tracks.TRACK_NAME, trackName);
-	                final int color = Color.parseColor(getTrackColor(trackId));
-	                trackBuilder.withValue(Tracks.TRACK_COLOR, color);
-	    		    batch.add(trackBuilder.build());
+	            }
+	            
+	            if (newSession || sessionUpdated) {
+				    builder.withValue(Sessions.TITLE, session.getString("title"));
+				    builder.withValue(Sessions.EXPERIENCE, session.getString("experience"));
+				    builder.withValue(Sessions.TYPE, session.getString("type"));
+				    builder.withValue(Sessions.SUMMARY, session.getString("summary"));
+				    builder.withValue(Sessions.STARRED, isStarred);
+	            }
+			    
+	        	batch.add(builder.build());
+			    
+			    if (session.has("track")) {
+			    	final String trackName = session.getString("track");
+			    	final String trackId = Tracks.generateTrackId(trackName);
+			    	final Uri trackUri = Tracks.buildTrackUri(trackId);
+	
+				    if (!trackIds.contains(trackId)) {
+				    	trackIds.add(trackId);
+				    	
+			            ContentProviderOperation.Builder trackBuilder;
+			            if (isRowExisting(Tracks.buildTrackUri(trackId), TracksQuery.PROJECTION, resolver)) {
+			            	trackBuilder = ContentProviderOperation.newUpdate(trackUri);
+			            } else {
+			            	trackBuilder = ContentProviderOperation.newInsert(Tracks.CONTENT_URI);
+			            	trackBuilder.withValue(Tracks.TRACK_ID, trackId);
+			            }
+	
+		                trackBuilder.withValue(Tracks.TRACK_NAME, trackName);
+		                final int color = Color.parseColor(getTrackColor(trackId));
+		                trackBuilder.withValue(Tracks.TRACK_COLOR, color);
+		    		    batch.add(trackBuilder.build());
+				    }
+				    
+		            if (newSession || sessionUpdated) {
+					    builder.withValue(Sessions.TRACK_ID, trackId);
+		            }
 			    }
 			    
-	            if (newSession || sessionUpdated) {
-				    builder.withValue(Sessions.TRACK_ID, trackId);
-	            }
-		    }
-		    
-		    if (session.has("speakers")) {
-			    final Uri speakerSessionsUri = Sessions.buildSpeakersDirUri(sessionId);
-		    	final JSONArray speakers = session.getJSONArray("speakers");
-				final HashSet<String> speakerIds = Sets.newHashSet();
-		    	
-		    	if (!isLocalSync()) {
-            		final boolean sessionSpeakersUpdated = isSessionSpeakersUpdated(speakerSessionsUri, speakers, resolver);
-		    		if (sessionSpeakersUpdated) {
-			    		Log.d(TAG, "Speakers of session with id " + sessionId + " was udpated.");
-			    		batch.add(ContentProviderOperation.newUpdate(sessionUri)
-			    				.withValue(Sessions.UPDATED, true)
-			    				.build());
-		    		}
-		    	}
-		    	
-		    	for (int j = 0; j < speakers.length(); j++) {
-		    		JSONObject speaker = speakers.getJSONObject(j);
-		    		
-	            	final Uri speakerUri = Uri.parse(speaker.getString("speakerUri"));
-	            	final String speakerId = speakerUri.getLastPathSegment();
-	            	speakerIds.add(speakerId);
-
-			    	batch.add(ContentProviderOperation.newInsert(speakerSessionsUri)
-			    			.withValue(SessionsSpeakers.SPEAKER_ID, speakerId)
-			    			.withValue(SessionsSpeakers.SESSION_ID, sessionId).build());
-		    	}
-		    	
-		    	if (isRemoteSync()) {
-			    	HashSet<String> lostSpeakerIds = getLostIds(speakerIds, speakerSessionsUri, SpeakersQuery.PROJECTION, SpeakersQuery.SPEAKER_ID, resolver);
-		        	for (String lostSpeakerId : lostSpeakerIds) {
-		        		if (Integer.valueOf(lostSpeakerId) < 901) {
-			        		final Uri deleteUri = Sessions.buildSessionSpeakerUri(sessionId, lostSpeakerId);
-					    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
-		        		}
-		        	}
-		    	}
-		    }
-        }
+			    if (session.has("speakers")) {
+				    final Uri speakerSessionsUri = Sessions.buildSpeakersDirUri(sessionId);
+			    	final JSONArray speakers = session.getJSONArray("speakers");
+					final HashSet<String> speakerIds = Sets.newHashSet();
+			    	
+			    	if (!isLocalSync()) {
+	            		final boolean sessionSpeakersUpdated = isSessionSpeakersUpdated(speakerSessionsUri, speakers, resolver);
+			    		if (sessionSpeakersUpdated) {
+				    		Log.d(TAG, "Speakers of session with id " + sessionId + " was udpated.");
+				    		batch.add(ContentProviderOperation.newUpdate(sessionUri)
+				    				.withValue(Sessions.UPDATED, true)
+				    				.build());
+			    		}
+			    	}
+			    	
+			    	for (int j = 0; j < speakers.length(); j++) {
+			    		JSONObject speaker = speakers.getJSONObject(j);
+			    		
+		            	final Uri speakerUri = Uri.parse(speaker.getString("speakerUri"));
+		            	final String speakerId = speakerUri.getLastPathSegment();
+		            	speakerIds.add(speakerId);
+	
+				    	batch.add(ContentProviderOperation.newInsert(speakerSessionsUri)
+				    			.withValue(SessionsSpeakers.SPEAKER_ID, speakerId)
+				    			.withValue(SessionsSpeakers.SESSION_ID, sessionId).build());
+			    	}
+			    	
+			    	sessionSpeakerIds.put(sessionId, speakerIds);
+			    }
+	        }
+		}
         
-        if (isRemoteSync() && sessions.length() > 0) {
+        if (isRemoteSync() && nrEntries > 0) {
+        	for (Entry<String, HashSet<String>> entry : sessionSpeakerIds.entrySet()) {
+        		String sessionId = entry.getKey();
+        		HashSet<String> speakerIds = entry.getValue();
+			    final Uri speakerSessionsUri = Sessions.buildSpeakersDirUri(sessionId);
+    	    	HashSet<String> lostSpeakerIds = getLostIds(speakerIds, speakerSessionsUri, SpeakersQuery.PROJECTION, SpeakersQuery.SPEAKER_ID, resolver);
+            	for (String lostSpeakerId : lostSpeakerIds) {
+	        		final Uri deleteUri = Sessions.buildSessionSpeakerUri(sessionId, lostSpeakerId);
+			    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
+            	}
+        	}
+
         	HashSet<String> lostSessionIds = getLostIds(sessionIds, Sessions.CONTENT_URI, SessionsQuery.PROJECTION, SessionsQuery.SESSION_ID, resolver);
         	HashSet<String> lostTrackIds = getLostIds(trackIds, Tracks.CONTENT_URI, TracksQuery.PROJECTION, TracksQuery.TRACK_ID, resolver);
-        	
         	for (String lostTrackId : lostTrackIds) {
         		Uri deleteUri = Tracks.buildSessionsUri(lostTrackId);
 		    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
@@ -195,12 +205,10 @@ public class RemoteSessionsHandler extends JSONHandler {
 		    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
         	}
         	for (String lostSessionId : lostSessionIds) {
-        		if (Integer.valueOf(lostSessionId) < 901) {
-			    	Uri deleteUri = Sessions.buildSpeakersDirUri(lostSessionId);
-			    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
-			    	deleteUri = Sessions.buildSessionUri(lostSessionId);
-			    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
-        		}
+		    	Uri deleteUri = Sessions.buildSpeakersDirUri(lostSessionId);
+		    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
+		    	deleteUri = Sessions.buildSessionUri(lostSessionId);
+		    	batch.add(ContentProviderOperation.newDelete(deleteUri).build());
         	}
         }
         

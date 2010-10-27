@@ -43,39 +43,43 @@ public class RemoteRoomsHandler extends JSONHandler {
 
     private static final String TAG = "RoomsHandler";
 
-    public RemoteRoomsHandler(int syncType) {
-		super(ScheduleContract.CONTENT_AUTHORITY, syncType);
+    public RemoteRoomsHandler() {
+		super(ScheduleContract.CONTENT_AUTHORITY);
 	}
 
 	@Override
-	public ArrayList<ContentProviderOperation> parse(JSONArray rooms,
+	public ArrayList<ContentProviderOperation> parse(ArrayList<JSONArray> entries,
 			ContentResolver resolver) throws JSONException {
 		final ArrayList<ContentProviderOperation> batch = Lists.newArrayList();
 		final HashSet<String> roomIds = new HashSet<String>();
-		
-		Log.d(TAG, "Retrieved " + rooms.length() + " room entries.");
 
-        for (int i = 0; i< rooms.length(); i++) {
-            JSONObject room = rooms.getJSONObject(i);
-            String id = room.getString("id");
-            
-            final String roomId = sanitizeId(id);
-            final Uri roomUri = Rooms.buildRoomUri(roomId);
-            roomIds.add(roomId);
-            
-            ContentProviderOperation.Builder builder;
-            if (isRowExisting(Rooms.buildRoomUri(roomId), RoomsQuery.PROJECTION, resolver)) {
-            	builder = ContentProviderOperation.newUpdate(roomUri);
-            } else {
-	            builder = ContentProviderOperation.newInsert(Rooms.CONTENT_URI);
-	            builder.withValue(Rooms.ROOM_ID, roomId);
-            }
-		    builder.withValue(Rooms.NAME, room.getString("name"));
-		    builder.withValue(Rooms.CAPACITY, room.getString("capacity"));
-		    batch.add(builder.build());
-        }
+		int nrEntries = 0;
+		for (JSONArray rooms : entries) {
+			Log.d(TAG, "Retrieved " + rooms.length() + " room entries.");
+			nrEntries += rooms.length();
+	
+	        for (int i = 0; i< rooms.length(); i++) {
+	            JSONObject room = rooms.getJSONObject(i);
+	            String id = room.getString("id");
+	            
+	            final String roomId = sanitizeId(id);
+	            final Uri roomUri = Rooms.buildRoomUri(roomId);
+	            roomIds.add(roomId);
+	            
+	            ContentProviderOperation.Builder builder;
+	            if (isRowExisting(Rooms.buildRoomUri(roomId), RoomsQuery.PROJECTION, resolver)) {
+	            	builder = ContentProviderOperation.newUpdate(roomUri);
+	            } else {
+		            builder = ContentProviderOperation.newInsert(Rooms.CONTENT_URI);
+		            builder.withValue(Rooms.ROOM_ID, roomId);
+	            }
+			    builder.withValue(Rooms.NAME, room.getString("name"));
+			    builder.withValue(Rooms.CAPACITY, room.getString("capacity"));
+			    batch.add(builder.build());
+	        }
+		}
 
-        if (isRemoteSync() && rooms.length() > 0) {
+        if (isRemoteSync() && nrEntries > 0) {
 		    for (String lostId : getLostIds(roomIds, Rooms.CONTENT_URI, RoomsQuery.PROJECTION, RoomsQuery.ROOM_ID, resolver)) {
 		    	final Uri lostRoomUri = Rooms.buildRoomUri(lostId);
 		    	batch.add(ContentProviderOperation.newDelete(lostRoomUri).build());

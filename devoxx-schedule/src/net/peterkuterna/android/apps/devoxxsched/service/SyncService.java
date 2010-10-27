@@ -19,9 +19,10 @@
  */
 package net.peterkuterna.android.apps.devoxxsched.service;
 
+import java.util.ArrayList;
+
 import net.peterkuterna.android.apps.devoxxsched.Constants;
 import net.peterkuterna.android.apps.devoxxsched.R;
-import net.peterkuterna.android.apps.devoxxsched.io.BaseHandler;
 import net.peterkuterna.android.apps.devoxxsched.io.LocalExecutor;
 import net.peterkuterna.android.apps.devoxxsched.io.LocalSearchSuggestHandler;
 import net.peterkuterna.android.apps.devoxxsched.io.RemoteExecutor;
@@ -29,6 +30,7 @@ import net.peterkuterna.android.apps.devoxxsched.io.RemoteRoomsHandler;
 import net.peterkuterna.android.apps.devoxxsched.io.RemoteScheduleHandler;
 import net.peterkuterna.android.apps.devoxxsched.io.RemoteSessionsHandler;
 import net.peterkuterna.android.apps.devoxxsched.io.RemoteSpeakersHandler;
+import net.peterkuterna.android.apps.devoxxsched.model.RequestHash;
 import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleProvider;
 import net.peterkuterna.android.apps.devoxxsched.ui.SettingsActivity;
 import net.peterkuterna.android.apps.devoxxsched.util.NotificationUtils;
@@ -119,10 +121,10 @@ public class SyncService extends IntentService {
             if (localParse) {
                 // Parse values from local cache first
                 mLocalExecutor.execute(R.xml.search_suggest, new LocalSearchSuggestHandler());
-            	mLocalExecutor.execute(context, "cache-rooms.json", new RemoteRoomsHandler(BaseHandler.LOCAL_SYNC));
-            	mLocalExecutor.execute(context, "cache-speakers.json", new RemoteSpeakersHandler(BaseHandler.LOCAL_SYNC));
-            	mLocalExecutor.execute(context, "cache-presentations.json", new RemoteSessionsHandler(BaseHandler.LOCAL_SYNC));
-            	mLocalExecutor.execute(context, "cache-schedule.json", new RemoteScheduleHandler(BaseHandler.LOCAL_SYNC));
+            	mLocalExecutor.execute(context, "cache-rooms.json", new RemoteRoomsHandler());
+            	mLocalExecutor.execute(context, "cache-speakers.json", new RemoteSpeakersHandler());
+            	mLocalExecutor.execute(context, "cache-presentations.json", new RemoteSessionsHandler());
+            	mLocalExecutor.execute(context, "cache-schedule.json", new RemoteScheduleHandler());
 
                 // Save local parsed version
             	syncServicePrefs.edit().putInt(SyncPrefs.LOCAL_VERSION, VERSION_LOCAL).commit();
@@ -132,20 +134,34 @@ public class SyncService extends IntentService {
             final long startRemote = System.currentTimeMillis();
             boolean performRemoteSync = performRemoteSync(mResolver, mHttpClient, intent, context);
             if (performRemoteSync) {
-            	// Always parse values for labs sessions
-            	mLocalExecutor.execute(context, "cache-labs-speakers.json", new RemoteSpeakersHandler(localParse ? BaseHandler.LOCAL_SYNC : BaseHandler.LOCAL_LAB_SYNC));
-            	mLocalExecutor.execute(context, "cache-labs-presentations.json", new RemoteSessionsHandler(localParse ? BaseHandler.LOCAL_SYNC : BaseHandler.LOCAL_LAB_SYNC));
-            	mLocalExecutor.execute(context, "cache-labs-schedule.json", new RemoteScheduleHandler(localParse ? BaseHandler.LOCAL_SYNC : BaseHandler.LOCAL_LAB_SYNC));
-            	
             	// Parse values from REST interface
-	            String md5 = mRemoteExecutor.executeGet(Constants.ROOMS_URL, new RemoteRoomsHandler(BaseHandler.REMOTE_SYNC));
-	            SyncUtils.updateLocalMd5(mResolver, Constants.ROOMS_URL, md5);
-	            md5 = mRemoteExecutor.executeGet(Constants.SPEAKERS_URL, new RemoteSpeakersHandler(BaseHandler.REMOTE_SYNC));
-	            SyncUtils.updateLocalMd5(mResolver, Constants.SPEAKERS_URL, md5);
-	            md5 = mRemoteExecutor.executeGet(Constants.PRESENTATIONS_URL, new RemoteSessionsHandler(BaseHandler.REMOTE_SYNC));
-	            SyncUtils.updateLocalMd5(mResolver, Constants.PRESENTATIONS_URL, md5);
-	            md5 = mRemoteExecutor.executeGet(Constants.SCHEDULE_URL, new RemoteScheduleHandler(BaseHandler.REMOTE_SYNC));
-	            SyncUtils.updateLocalMd5(mResolver, Constants.SCHEDULE_URL, md5);
+	            ArrayList<RequestHash> result = mRemoteExecutor.executeGet(new String [] {
+	            			Constants.ROOMS_URL,
+	            		}, new RemoteRoomsHandler());
+	            for (RequestHash requestHash : result) {
+	            	SyncUtils.updateLocalMd5(mResolver, requestHash.getUrl(), requestHash.getMd5());
+	            }
+	            result = mRemoteExecutor.executeGet(new String [] {
+	            			Constants.SPEAKERS_URL,
+	            			Constants.LABS_SPEAKERS_URL,
+	            		}, new RemoteSpeakersHandler());
+	            for (RequestHash requestHash : result) {
+	            	SyncUtils.updateLocalMd5(mResolver, requestHash.getUrl(), requestHash.getMd5());
+	            }
+	            result = mRemoteExecutor.executeGet(new String [] {
+	            			Constants.PRESENTATIONS_URL,
+	            			Constants.LABS_PRESENTATIONS_URL,
+	    				}, new RemoteSessionsHandler());
+	            for (RequestHash requestHash : result) {
+	            	SyncUtils.updateLocalMd5(mResolver, requestHash.getUrl(), requestHash.getMd5());
+	            }
+	            result = mRemoteExecutor.executeGet(new String [] {
+	            			Constants.SCHEDULE_URL,
+	            			Constants.LABS_SCHEDULE_URL,
+    					}, new RemoteScheduleHandler());
+	            for (RequestHash requestHash : result) {
+	            	SyncUtils.updateLocalMd5(mResolver, requestHash.getUrl(), requestHash.getMd5());
+	            }
 
 	            // Save last remote sync time
 	            syncServicePrefs.edit().putLong(SyncPrefs.LAST_REMOTE_SYNC, startRemote).commit();
@@ -154,7 +170,7 @@ public class SyncService extends IntentService {
             }
             Log.d(TAG, "remote sync took " + (System.currentTimeMillis() - startRemote) + "ms");
 
-            if (performRemoteSync) {
+            if (!localParse && performRemoteSync) {
             	NotificationUtils.cancelNotifications(context);
             	NotificationUtils.notifyNewSessions(context, getContentResolver());
             	NotificationUtils.notifyChangedStarredSessions(context, getContentResolver());

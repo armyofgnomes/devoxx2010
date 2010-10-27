@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import net.peterkuterna.android.apps.devoxxsched.io.JSONHandler.JSONHandlerException;
 import net.peterkuterna.android.apps.devoxxsched.util.Sets;
 
 import org.json.JSONArray;
@@ -48,8 +49,8 @@ public abstract class JSONHandler extends BaseHandler {
 	
 	private static final String TAG = "JSONHandler"; 
 	
-    public JSONHandler(String mAuthority, int syncType) {
-		super(mAuthority, syncType);
+    public JSONHandler(String mAuthority) {
+		super(mAuthority);
 	}
 
 	/**
@@ -57,7 +58,7 @@ public abstract class JSONHandler extends BaseHandler {
      * {@link ContentProviderOperation} that are immediately applied using the
      * given {@link ContentResolver}.
      */
-    public void parseAndApply(JSONArray entries, ContentResolver resolver) throws JSONHandlerException {
+    public void parseAndApply(ArrayList<JSONArray> entries, ContentResolver resolver) throws JSONHandlerException {
     	try {
 	        final ArrayList<ContentProviderOperation> batch = parse(entries, resolver);
 	        resolver.applyBatch(getAuthority(), batch);
@@ -75,7 +76,7 @@ public abstract class JSONHandler extends BaseHandler {
      * {@link ContentProviderOperation} that will bring the
      * {@link ContentProvider} into sync with the parsed data.
      */
-    public abstract ArrayList<ContentProviderOperation> parse(JSONArray entries, ContentResolver resolver) throws JSONException;
+    public abstract ArrayList<ContentProviderOperation> parse(ArrayList<JSONArray> entries, ContentResolver resolver) throws JSONException;
 
 	protected static boolean isRowExisting(Uri uri, String [] projection, ContentResolver resolver) {
 		final Cursor cursor = resolver.query(uri, projection, null, null, null);

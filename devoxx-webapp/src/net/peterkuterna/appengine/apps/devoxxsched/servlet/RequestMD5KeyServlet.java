@@ -37,7 +37,9 @@ public class RequestMD5KeyServlet extends HttpServlet {
 			throws IOException {
 		final String requestUri = req.getParameter("requestUri");
 		
-		if (requestUri != null && requestUri.startsWith("http://cfp.devoxx.com")) {
+		if (requestUri != null 
+				&& (requestUri.startsWith("http://cfp.devoxx.com")
+						|| requestUri.startsWith("http://devoxx2010.appspot.com"))) {
 			final PersistenceManager pm = PMF.get().getPersistenceManager();
 	
 			RequestHash requestHash = getRequestHash(requestUri);
