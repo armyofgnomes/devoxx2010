@@ -1,8 +1,8 @@
 [
 	{
 		"id":901,
-		"lastName":"JetBrains",
-		"bio":"",
+		"lastName":"Shatalin",
+		"bio":"Alex Shatalin is the JetBrains MPS project lead. Before joining JetBrains MPS one year ago, Alex worked as a principal engineer at the Borland Together modeling department, participating in Borland DSL toolkit design and development, open source Eclipse Graphical Modeling Framework development, and in various other MDA/DSL-based application development projects.",
 		"company":"JetBrains",
 		"talks":[
 			{
@@ -12,7 +12,7 @@
 			}
 		],
 		"imageURI":"http://cfp.devoxx.com/img/thumbnail.gif",
-		"firstName":""
+		"firstName":"Alex"
 	},
 	{
 		"id":902,
@@ -43,6 +43,21 @@
 		],
 		"imageURI":"http://cfp.devoxx.com/img/thumbnail.gif",
 		"firstName":"Aslak"
+	},
+	{
+		"id":904,
+		"lastName":"Gurov",
+		"bio":"Vadim Gurov is a senior software developer at JetBrains and the YouTrack project lead. He holds a PhD in Computer Science and has over ten years of web application development experience. Vadim believes that language-oriented programming is the next big thing in software industry, and works in touch with the MPS team to create DSLs for database and web development.",
+		"company":"JetBrains",
+		"talks":[
+			{
+				"title":"Language-Oriented Programming in Action",
+				"event":"Labs (3h)",
+				"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/901"
+			}
+		],
+		"imageURI":"http://cfp.devoxx.com/img/thumbnail.gif",
+		"firstName":"Vadim"
 	},
 	{
 		"id":244,

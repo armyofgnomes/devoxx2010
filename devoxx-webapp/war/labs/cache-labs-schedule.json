@@ -1,6 +1,6 @@
 [
 	{
-		"speaker":"JetBrains",
+		"speaker":"Alex Shatalin",
 		"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/901",
 		"code":"D10_L_15_01_01",
 		"fromTime":"2010-11-15 09:30:00.0",
@@ -9,7 +9,11 @@
 		"speakers":[
 			{
 				"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/901",
-				"speaker":"JetBrains"
+				"speaker":"Alex Shatalin"
+			},
+			{
+				"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/904",
+				"speaker":"Vadim Gurov"
 			}
 		],
 		"kind":"Lab",

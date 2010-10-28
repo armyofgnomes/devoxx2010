@@ -4,12 +4,16 @@
 		"id":901,
 		"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/901",
 		"title":"Language-Oriented Programming in Action",
-		"speaker":"JetBrains",
+		"speaker":"Alex Shatalin",
 		"track":"Java Core (SE/EE)",
 		"speakers":[
 			{
 				"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/901",
-				"speaker":"JetBrains"
+				"speaker":"Alex Shatalin"
+			},
+			{
+				"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/904",
+				"speaker":"Vadim Gurov"
 			}
 		],
 		"experience":"NOVICE",
