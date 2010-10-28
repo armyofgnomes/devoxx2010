@@ -791,8 +791,13 @@ public class ScheduleProvider extends ContentProvider {
                 + Qualified.BLOCKS_BLOCK_ID + ")";
 
         String BLOCK_STARRED_SESSIONS_COUNT = "(SELECT COUNT(" + Qualified.SESSIONS_SESSION_ID + ") FROM "
-        	+ Tables.SESSIONS + " WHERE " + Qualified.SESSIONS_STARRED + "=1 AND " 
-        	+ Qualified.SESSIONS_BLOCK_ID + "=" + Qualified.BLOCKS_BLOCK_ID + ")";
+        	+ Tables.SESSIONS + " WHERE " + Qualified.SESSIONS_STARRED + "=1 AND "
+        	+ "((" + Blocks.BLOCK_START + ">=" + Qualified.BLOCKS_BLOCK_START + " AND " 
+        	+ Blocks.BLOCK_END + "<=" + Qualified.BLOCKS_BLOCK_END + ") OR (" + Blocks.BLOCK_END 
+        	+ ">=" + Qualified.BLOCKS_BLOCK_START + " AND " + Blocks.BLOCK_END + "<=" 
+        	+ Qualified.BLOCKS_BLOCK_END + ") OR (" + Blocks.BLOCK_START + "<=" 
+        	+ Qualified.BLOCKS_BLOCK_END + " AND " + Blocks.BLOCK_START + ">="
+        	+ Qualified.BLOCKS_BLOCK_START + ")))";
 
         String BLOCK_CONTAINS_STARRED = "(SELECT MAX(" + Qualified.SESSIONS_STARRED + ") FROM "
                 + Tables.SESSIONS + " WHERE " + Qualified.SESSIONS_BLOCK_ID + "="
@@ -849,6 +854,8 @@ public class ScheduleProvider extends ContentProvider {
         String TRACKS_TRACK_ID = Tables.TRACKS + "." + Tracks.TRACK_ID;
 
         String BLOCKS_BLOCK_ID = Tables.BLOCKS + "." + Blocks.BLOCK_ID;
+        String BLOCKS_BLOCK_START = Tables.BLOCKS + "." + Blocks.BLOCK_START;
+        String BLOCKS_BLOCK_END = Tables.BLOCKS + "." + Blocks.BLOCK_END;
 
         String NOTES_SESSION_ID = Tables.NOTES + "." + Notes.SESSION_ID;
     }
