@@ -34,6 +34,10 @@
 			{
 				"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/902",
 				"speaker":"Geertjan Wielenga"
+			},
+			{
+				"speakerUri":"http://cfp.devoxx.com/rest/v1/events/speakers/905",
+				"speaker":"Anton Epple"
 			}
 		],
 		"kind":"Lab",

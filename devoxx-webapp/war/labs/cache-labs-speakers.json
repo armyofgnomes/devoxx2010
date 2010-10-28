@@ -60,6 +60,21 @@
 		"firstName":"Vadim"
 	},
 	{
+		"id":905,
+		"lastName":"Epple",
+		"bio":"Anton Epple has more than 10 years experience leading Java projects and has published many articles on the topic. He is a consultant worldwide for a wide variety of companies, ranging from startups to Fortune 500 companies, in many areas, including finance institutions and aerospace. In his spare time, Anton is community leader for the JavaTools Community at Java.net and a member of the NetBeans Dream Team and Governance Board.",
+		"company":"",
+		"talks":[
+			{
+				"title":"Developing Substantial Java Desktop Applications",
+				"event":"Labs (3h)",
+				"presentationUri":"http://cfp.devoxx.com/rest/v1/events/presentations/902"
+			}
+		],
+		"imageURI":"http://cfp.devoxx.com/img/thumbnail.gif",
+		"firstName":"Anton"
+	},
+	{
 		"id":244,
 		"talks":[
 			{
