@@ -75,6 +75,9 @@ public class SyncService extends IntentService {
     	Constants.SPEAKERS_URL,
     	Constants.PRESENTATIONS_URL,
     	Constants.SCHEDULE_URL,
+    	Constants.LABS_SPEAKERS_URL,
+    	Constants.LABS_PRESENTATIONS_URL,
+    	Constants.LABS_SCHEDULE_URL,
     };
 
     private static final int VERSION_NONE = 0;
