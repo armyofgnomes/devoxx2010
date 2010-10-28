@@ -30,11 +30,9 @@
 		    android:layout_height="wrap_content">
 	        <view class="net.peterkuterna.android.apps.devoxxsched.ui.widget.SpeakerImageView"
 	            android:id="@+id/speaker_image"
-	            android:src="@drawable/speaker_thumbnail"
 		        android:layout_alignParentLeft="true"
 	            android:layout_width="100dip"
-	            android:layout_height="110dip"
-	            android:scaleType="fitCenter" />
+	            android:layout_height="110dip" />
 		    <TextView
 		        android:id="@+id/speaker_name"
 		        android:paddingLeft="5dp"
