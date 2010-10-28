@@ -30,10 +30,10 @@
         <attr name="endHour" format="integer" />
     </declare-styleable>
 
-    <declare-styleable name="FloorView">
-    </declare-styleable>
+    <declare-styleable name="FloorView" />
 
-    <declare-styleable name="DontPressWithParentImageView">
-    </declare-styleable>
+    <declare-styleable name="DontPressWithParentImageView" />
 
+    <declare-styleable name="SpeakerImageView" />
+    
 </resources>

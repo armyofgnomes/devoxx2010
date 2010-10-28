@@ -28,7 +28,7 @@
 		    android:id="@+id/speaker_detail_header"
 		    android:layout_width="fill_parent"
 		    android:layout_height="wrap_content">
-	        <ImageView
+	        <view class="net.peterkuterna.android.apps.devoxxsched.ui.widget.SpeakerImageView"
 	            android:id="@+id/speaker_image"
 	            android:src="@drawable/speaker_thumbnail"
 		        android:layout_alignParentLeft="true"

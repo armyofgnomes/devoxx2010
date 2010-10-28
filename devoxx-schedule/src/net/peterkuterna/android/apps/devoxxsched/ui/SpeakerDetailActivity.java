@@ -22,10 +22,11 @@ import java.io.FileOutputStream;
 
 import net.peterkuterna.android.apps.devoxxsched.R;
 import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Speakers;
+import net.peterkuterna.android.apps.devoxxsched.ui.widget.SpeakerImageView;
 import net.peterkuterna.android.apps.devoxxsched.util.NotifyingAsyncQueryHandler;
+import net.peterkuterna.android.apps.devoxxsched.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import net.peterkuterna.android.apps.devoxxsched.util.SyncUtils;
 import net.peterkuterna.android.apps.devoxxsched.util.UIUtils;
-import net.peterkuterna.android.apps.devoxxsched.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -39,14 +40,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TabHost;
 import android.widget.TextView;
 
@@ -66,7 +66,7 @@ public class SpeakerDetailActivity extends TabActivity implements AsyncQueryList
     private TextView mName;
     private TextView mCompany;
     private TextView mBio;
-    private ImageView mImage;
+    private SpeakerImageView mImage;
 
     private File cacheDir;
 
@@ -84,7 +84,7 @@ public class SpeakerDetailActivity extends TabActivity implements AsyncQueryList
         mName = (TextView) findViewById(R.id.speaker_name);
         mCompany = (TextView) findViewById(R.id.speaker_company);
         mBio = (TextView) findViewById(R.id.speaker_bio);
-        mImage = (ImageView) findViewById(R.id.speaker_image);
+        mImage = (SpeakerImageView) findViewById(R.id.speaker_image);
         
         final Intent intent = getIntent();
         mSpeakerUri = intent.getData();
@@ -178,7 +178,7 @@ public class SpeakerDetailActivity extends TabActivity implements AsyncQueryList
     private void setSpeakerImage(Bitmap bitmap, boolean saveToCache) {
     	if (bitmap != null) {
             mImage.setVisibility(View.VISIBLE);
-            mImage.setImageBitmap(bitmap);
+            mImage.setImage(bitmap);
     		if (saveToCache) saveImageToCache(bitmap);
     	}
     	
