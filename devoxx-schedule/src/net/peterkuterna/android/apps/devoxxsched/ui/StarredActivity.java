@@ -30,9 +30,9 @@ import net.peterkuterna.android.apps.devoxxsched.provider.ScheduleContract.Speak
 import net.peterkuterna.android.apps.devoxxsched.ui.MyScheduleActivity.MySchedulePrefs;
 import net.peterkuterna.android.apps.devoxxsched.util.Lists;
 import net.peterkuterna.android.apps.devoxxsched.util.NotifyingAsyncQueryHandler;
+import net.peterkuterna.android.apps.devoxxsched.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 import net.peterkuterna.android.apps.devoxxsched.util.SyncUtils;
 import net.peterkuterna.android.apps.devoxxsched.util.UIUtils;
-import net.peterkuterna.android.apps.devoxxsched.util.NotifyingAsyncQueryHandler.AsyncQueryListener;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -58,9 +58,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TabHost;
+import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.TabHost.OnTabChangeListener;
 
 public class StarredActivity extends TabActivity implements AsyncQueryListener {
 
@@ -73,6 +73,7 @@ public class StarredActivity extends TabActivity implements AsyncQueryListener {
     private static final int PUBLISH_SHOW_MYSCHEDULE_REGISTRATION = 0x02;
 
     private NotifyingAsyncQueryHandler mHandler;
+    private MyScheduleTask task;
 
     private View mEmailSeparator;
     private View mEmailButton;
@@ -110,12 +111,26 @@ public class StarredActivity extends TabActivity implements AsyncQueryListener {
 		});
         
         onTabChange(TAG_SESSIONS);
+        
+        task = (MyScheduleTask) getLastNonConfigurationInstance();
+        if (task != null) {
+        	task.attach(this);
+        }
 
         mHandler = new NotifyingAsyncQueryHandler(getContentResolver(), this);
         mHandler.startQuery(Sessions.CONTENT_STARRED_URI, SessionsQuery.PROJECTION);
     }
 
     @Override
+	public Object onRetainNonConfigurationInstance() {
+    	if (task != null && AsyncTask.Status.RUNNING.equals(task.getStatus())) {
+    		task.detach();
+    		return task;
+    	}
+    	return null;
+	}
+
+	@Override
     protected Dialog onCreateDialog(int id) {
         switch (id) {
             case R.id.dialog_myschedule_email: {
@@ -208,11 +223,13 @@ public class StarredActivity extends TabActivity implements AsyncQueryListener {
     }
     
     private void emailMySchedule() {
-		new EmailTask().execute();
+    	task = new EmailTask(this);
+    	task.execute();
     }
 
 	private void publishMySchedule() {
-		new PublishTask().execute();
+    	task = new PublishTask(this);
+    	task.execute();
     }
 
     private void onTabChange(String tabId) {
@@ -277,7 +294,7 @@ public class StarredActivity extends TabActivity implements AsyncQueryListener {
     				&& activationCode.trim().length() > 0);
     }
     
-    private static HttpClient sHttpClient;
+	private static HttpClient sHttpClient;
 
     private static synchronized HttpClient getHttpClient(Context context) {
         if (sHttpClient == null) {
@@ -288,6 +305,7 @@ public class StarredActivity extends TabActivity implements AsyncQueryListener {
     
     private abstract class MyScheduleTask extends AsyncTask<Void, Void, Void> {
     	
+    	private StarredActivity activity;
     	private final String mUrl;
     	private final String mMessage;
     	private final String mToastOk;
@@ -296,7 +314,8 @@ public class StarredActivity extends TabActivity implements AsyncQueryListener {
     	private ProgressDialog mDialog;  
     	private boolean mResultOk = false;
 
-    	public MyScheduleTask(String url, String message, String toastOk, String toastNok) {
+    	public MyScheduleTask(StarredActivity activity, String url, String message, String toastOk, String toastNok) {
+			this.activity = activity;
     		this.mUrl = url;
 			this.mMessage = message;
 			this.mToastOk = toastOk;
@@ -335,7 +354,7 @@ public class StarredActivity extends TabActivity implements AsyncQueryListener {
                 	return null;
                 }
                 
-                mResultOk = true;
+            	mResultOk = true;
             } catch (Exception e) {
             	Log.e(TAG, e.getMessage());
             	mResultOk = false;
@@ -345,8 +364,10 @@ public class StarredActivity extends TabActivity implements AsyncQueryListener {
             return null;
         }
 
-        protected void onPostExecute(Void unused) {  
-            mDialog.dismiss();
+        protected void onPostExecute(Void unused) {
+        	if (mDialog != null && mDialog.isShowing()) {
+        		mDialog.dismiss();
+        	}
             
             if (mResultOk) {
                 Toast.makeText(StarredActivity.this, mToastOk, Toast.LENGTH_LONG).show();  
@@ -385,12 +406,24 @@ public class StarredActivity extends TabActivity implements AsyncQueryListener {
             return sessionIds;
         }
 
+		void detach() {
+			this.activity = null;
+		}
+
+		void attach(StarredActivity activity) {
+			this.activity = activity;
+			if (Status.RUNNING.equals(getStatus())) {
+				onPreExecute();
+			}
+		}
+		
     }
     
     private class EmailTask extends MyScheduleTask {
 
-		public EmailTask() {
-			super(Constants.MYSCHEDULE_EMAIL_URL,
+		public EmailTask(StarredActivity activity) {
+			super(activity, 
+				  Constants.MYSCHEDULE_EMAIL_URL,
 				  getResources().getString(R.string.myschedule_email_message),
 				  getResources().getString(R.string.myschedule_email_ok),
 				  getResources().getString(R.string.myschedule_email_nok));
@@ -400,8 +433,9 @@ public class StarredActivity extends TabActivity implements AsyncQueryListener {
 
     private class PublishTask extends MyScheduleTask {
 
-		public PublishTask() {
-			super(Constants.MYSCHEDULE_PUBLISH_URL,
+		public PublishTask(StarredActivity activity) {
+			super(activity,
+				  Constants.MYSCHEDULE_PUBLISH_URL,
 				  getResources().getString(R.string.myschedule_publish_message),
 				  getResources().getString(R.string.myschedule_publish_ok),
 				  getResources().getString(R.string.myschedule_publish_nok));
