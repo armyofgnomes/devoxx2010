@@ -55,9 +55,9 @@
 
     <TabHost
         android:id="@android:id/tabhost"
-        android:paddingTop="2dip"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:layout_marginTop="5dip">
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="fill_parent"
