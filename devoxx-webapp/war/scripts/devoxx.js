@@ -25,12 +25,14 @@ function Devoxx() {
 	this.map_ = new google.maps.Map(this.mapDiv_, {
 		zoom : 17,
 		center : this.center_,
+		backgroundColor : '#ffffff',
 		navigationControl : true,
 		navigationControlOptions : {
 			style : google.maps.NavigationControlStyle.ANDROID
 		},
 		mapTypeControl : false,
 		scaleControl : true,
+		streetViewControl : false,
 		mapTypeId : google.maps.MapTypeId.HYBRID
 	});
 	
